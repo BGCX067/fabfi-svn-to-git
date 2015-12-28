@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FabFi - Community Access Portal</title>
+    <link rel="Shortcut Icon" href="http://fabfi.org/favicon.ico" />
+
+    <!-- the worlds smallest javascript framework -->
+    <script type="text/javascript">
+      document.ready = function(success, error) {
+        if (document.readyBound) return;
+        document.readyBound = true;
+        if (document.addEventListener) {  // Mozilla, Opera and webkit nightlies currently support this event
+          document.addEventListener("DOMContentLoaded", function() {
+            document.removeEventListener("DOMContentLoaded", arguments.callee, false);
+            success();
+          }, false);
+        } else if (document.attachEvent) { // If IE event model is used
+          document.attachEvent("onreadystatechange", function() {
+            if (document.readyState === "complete") {
+              document.detachEvent( "onreadystatechange", arguments.callee );
+              success();
+            }
+          });
+        }
+      };
+      
+      function $(selector, element)  {
+        var result = element ? element.querySelectorAll(selector) 
+          : document.querySelectorAll(selector);
+        return (result.length == 1) ? result[0] : result;
+      };
+      
+      function xhr(verb, path, data, callback) {
+        function _xhr() {
+          try { return new XMLHttpRequest(); } catch(e) { }
+          try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) { }
+          try { return new ActiveXObject("Microsoft.XMLHTTP"); } catch (e) { }
+          return error("XMLHttpRequest not supported");
+        }
+        var request = _xhr();
+        request.onreadystatechange = function() {
+          if (request.readyState != 4) return;
+          if (request.status != 200) {
+            return callback(request.status, request.responseText);
+          }
+          try {
+            return callback(null, JSON.parse(request.responseText));
+          } catch (e) { 
+            return callback(e, request.responseText); 
+          }
+        }
+        request.open(verb, path, true);
+        request.send(data ? JSON.stringify(data) : null);
+      };
+      
+    </script>
+
+    <!-- menu logic -->
+    <script type="text/javascript">
+      document.ready(function() {
+        console.log("portalgun object: ");
+        console.log(JSON.stringify(portalgun));
+      });
+      window.menu = {
+        "free access" : function() {
+          console.log("free access");
+          xhr("POST", portalgun.rest.free, { 
+                some : "data",
+                client : portalgun.ipaddress ,
+                redirect : portalgun.redirect
+              }, function(error, reply) {
+                if (error) return console.log("Error: " + error + " -> " + reply);
+                console.log("Got data: " + JSON.stringify(reply));
+                console.log("Redirecting: " + reply.redirect);
+                //window.location.href = reply.redirect;
+              });
+        },
+        "sign in" : function() {
+          console.log("sign in");
+          xhr("POST", portalgun.rest.login, { 
+                some : "data",
+                client : portalgun.ipaddress ,
+                redirect : portalgun.redirect,
+                username :$("input[name=email]").value,
+                password :$("input[name=password]").value
+              }, function(error, reply) {
+                if (error) return console.log("Error: " + error + " -> " + reply);
+                console.log("Got data: " + JSON.stringify(reply));
+                console.log("Redirecting: " + reply.redirect);
+                //window.location.href = reply.redirect;
+              });
+          var sha1 = hex_sha1($("input[name=email]").value +
+                              $("input[name=password]").value)
+          console.log("login: " + sha1);
+        },
+        "register" : function() {
+          var registration = {
+            email : $("input[name=email]").value,
+            sha1  : hex_sha1($("input[name=email]").value +
+                             $("input[name=password]").value)
+          };
+          console.log("register");
+          console.log(JSON.stringify(registration));
+        },
+        "account information" : function() {
+          console.log("account information");
+        }
+      };
+    </script>
+  </head>
+
+  <body>
+    <h1>FabFi Community Mesh Network</h1>
+    <ul>
+      <li><a href="#" onclick="menu['free access']();">free access</a></li>
+      <li>
+        <input type="email" name="email" placeholder="email address"></input>
+        <input type="password" name="password" placeholder="password"></input>
+      </li>
+      <li><a href="#" onclick="menu['sign in']();">sign in</a></li>
+      <li><a href="#" onclick="menu['register']();">register</a></li>
+      <li><a href="#" onclick="menu['account information']();">account information</a></li>
+    </ul>
+  </body>
+
+</html>

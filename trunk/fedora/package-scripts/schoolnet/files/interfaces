@@ -1,0 +1,18 @@
+auto lo
+iface lo inet loopback
+
+# Outward facing
+auto eth0
+iface eth0 inet static
+address 69.18.119.253
+netmask 255.255.255.240
+gateway 69.18.119.241
+broadcast 69.18.119.255
+
+# Inward facing
+auto eth0:0
+iface eth0:0 inet static
+address 69.18.119.244
+netmask 255.255.255.0
+broadcast 69.18.119.255
+network 69.18.119.0

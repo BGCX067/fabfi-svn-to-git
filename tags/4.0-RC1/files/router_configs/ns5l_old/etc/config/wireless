@@ -1,0 +1,25 @@
+config wifi-device  radio0
+        option type     mac80211
+        option channel  36
+        option hwmode   11na
+        option htmode   HT20
+#	option 'rts' '2000'
+#	option 'frag' '2048'
+        list ht_capab   SHORT-GI-40
+        list ht_capab   TX-STBC
+        list ht_capab   RX-STBC1
+        list ht_capab   DSSS_CCK-40
+        # REMOVE THIS LINE TO ENABLE WIFI:
+        option distance 100
+        option disabled 0
+
+config wifi-iface
+	option 'device' 'radio0'
+	option 'ssid' 'fabfi36'
+	option 'network' 'wifimesh'
+	option 'mode' 'adhoc'
+	option 'hidden' '1'
+	option 'encryption' 'wep'
+	option 'key' '8bb8d3c8d3d8bb3dffd38db33f'
+	option 'bssid' '36:fa:bf:1f:ab:f1'
+

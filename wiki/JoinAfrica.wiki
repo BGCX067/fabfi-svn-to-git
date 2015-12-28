@@ -1,0 +1,4 @@
+#summary What is JoinAfrica?
+= WHOIS? =
+
+You probably have seen a lot of references to `"JoinAfrica"` on this site and are wondering, "what is it?"  `JoinAfrica` is a community-implemented ISP project, currently running in Kenya, that uses the Fabfi 4.0 tech.  Fabfi 4.0, was built for the purpose of implementing `JoinAfrica`, and so you'll see a lot of settings with that name and we often interchange the two when writing docs.  If you want to learn more about `JoinAfrica`, [http://www.joinafrica.org/kenya click here]

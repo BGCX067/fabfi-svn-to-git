@@ -1,0 +1,32 @@
+#!/bin/sh 
+TIME="time.mesh"
+TIME2="time2.mesh"
+TIME3="time3.mesh"
+TIME4="time4.mesh"
+TIME99="time.mit.edu"
+
+if `rdate -s $TIME`
+	then
+echo "got time"
+	exit 0;
+fi
+if `rdate -s $TIME2`
+	then
+echo "got time"
+	exit 0;
+fi
+if `rdate -s $TIME3`
+	then
+echo "got time"
+	exit 0;
+fi
+if `rdate -s $TIME4`
+	then
+echo "got time"
+	exit 0;
+fi
+if `rdate -s $TIME99`
+	then
+echo "got time"
+	exit 0;
+fi

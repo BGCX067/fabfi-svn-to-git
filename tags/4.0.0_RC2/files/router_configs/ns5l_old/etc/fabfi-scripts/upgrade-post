@@ -1,0 +1,107 @@
+#!/bin/sh 
+SWDIR=http://fabfi.fabfolk.com/quickstart/firmware/
+SYSVARS=/etc/fabfi-scripts/sysvars
+INITS=/etc/init.d/upgrade-post
+INITRC=/etc/rc.d/S04upgrade-post
+INITTMP=/tmp/inittmp.sh
+
+ec="etc/config/"
+i_d="etc/init.d/"
+r_d="etc/rc.d/"
+ff_MACEnd=':fa:bf:1f:ab:f1'
+
+#misc constants
+ff_cIP=0
+ff_dIP=0
+ff_wm_abIP="10.102." #needs trailing .
+ff_m_abIP="10.101." #needs trailing .
+ff_m_cIP="0." #needs trailing .
+ff_l_abIP="10.103." #needs trailing .
+ff_gw_dIP="1"
+
+. /etc/fabfi-scripts/sysvars
+
+echo ""
+echo "Welcome to the FabFi 2.x -> 3.0 upgrade re-configuration script."  
+echo ""
+
+
+if test $channel -lt 10; then
+	bssid=0$channel$ff_MACEnd
+else
+	bssid=$channel$ff_MACEnd
+fi
+
+let m_dIP="$fabfi_num+$ff_dIP"
+#echo MESH and WIFIMESH Class D IP is: $meshing_dIP
+
+let lan_cIP="$fabfi_num+$ff_cIP" 
+#echo LAN Class C IP is: $lan_cIP
+                  
+ns_index=`uci show olsrd | grep -e 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_nameservice\.so' | 
+awk 'FS="[";{print $2}' | awk 'FS="]";{print $1};' | tail -1`
+
+#set config variables
+echo #!/bin/sh > $INITTMP
+echo uci set network.eth0.vlan0=\'$vlan0\' >> $INITTMP
+echo uci set network.eth0.vlan1=\'$vlan1\' >> $INITTMP
+echo uci set network.eth0.vlan2=\'$vlan2\' >> $INITTMP
+sh $INITTMP
+rm $INITTMP
+uci set system.@system[0].hostname=fabfi${fabfi_num}
+uci set network.lan.ipaddr=${ff_l_abIP}${lan_cIP}.${ff_gw_dIP}
+uci set network.mesh.ipaddr=$ff_m_abIP${ff_m_cIP}${m_dIP}
+uci set network.wifimesh.ipaddr=$ff_wm_abIP${ff_m_cIP}${m_dIP}
+uci set olsrd.@Hna4[0].netaddr=${ff_l_abIP}${lan_cIP}.0
+uci set olsrd.@LoadPlugin[${ns_index}].name=fabfi${fabfi_num}
+uci set mini_snmpd.@mini_snmpd[0].location=$location
+uci add dhcp domain
+uci set dhcp.@domain[-1]=domain
+uci set dhcp.@domain[-1].name=time.mesh
+uci set dhcp.@domain[-1].ip=$ff_m_abIP${ff_m_cIP}254
+uci add dhcp domain
+uci set dhcp.@domain[-1]=domain
+uci set dhcp.@domain[-1].name=master.mesh
+uci set dhcp.@domain[-1].ip=$ff_m_abIP${ff_m_cIP}254
+
+echo Hostname = `uci get system.@system[0].hostname`
+echo ""
+echo LAN IP = `uci get network.lan.ipaddr`
+echo MESH IP = `uci get network.mesh.ipaddr`
+echo WIFIMESH IP = `uci get network.wifimesh.ipaddr`
+
+echo ""
+uci set wireless.radio0.channel=$channel
+uci set wireless.radio0.macaddr=`nvram get il0macaddr`
+uci set wireless.@wifi-iface[0].bssid=$bssid
+uci set wireless.@wifi-iface[0].ssid=fabfi${channel}
+uci set wireless.radio0.distance=$distance
+uci set wireless.@wifi-iface[0].key=$wep_key
+uci set wireless.radio0.disabled=0
+
+
+echo Wireless channel = `uci get wireless.radio0.channel`
+echo Wireless distance = `uci get wireless.radio0.distance`
+#echo Wireless WEP key = `uci get wireless.@wifi-iface[0].key`
+sleep 2
+
+uci commit
+
+rm /etc/nodogsplash/htdocs/splash.html
+ln -s /tmp/splash.html /etc/nodogsplash/htdocs/splash.html
+
+rm $INITS
+rm $INITRC
+rm $SYSVARS
+
+echo ""
+echo Configuration is complete!
+echo Your router is rebooting... 
+echo 1. WAIT 1 MINUTE
+echo 2. UNPLUG YOUR COMPUTER FROM THE ROUTER
+echo 3. WAIT 1 MINUTE
+echo 4. PLUG YOUR COMPUTER BACK INTO THE ROUTER
+echo ""
+sleep 1
+reboot &
+

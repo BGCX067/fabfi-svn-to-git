@@ -1,0 +1,157 @@
+#!/bin/sh 
+NETFILE=/var/state/network
+NETTMP=/tmp/net.tmp
+IFACE=`uci get network.wan.ifname`
+IFACER=`echo $IFACE | sed 's/\./\\\./'`
+# not used.  I threw it in as a magic number below IFACE=eth0\.1  #is a regex
+OLSRD=/etc/init.d/olsrd
+LG=/etc/fabfi-scripts/check-uplink.log
+
+get_pl_index() {
+	echo `uci show olsrd | grep 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_nameservice\.so' |
+	  sed 's/olsrd\.@LoadPlugin\[\(.*\)\]\.library=olsrd_nameservice\.so.*/\1/'`
+}
+
+get_name() {
+echo "`date` getting name" >> $LG
+	myvar1=`get_pl_index`
+	echo `uci get olsrd.@LoadPlugin[${myvar1}].dns_server`
+}
+
+get_meshIP() {
+echo "`date` getting meshIP" >> $LG
+	echo `uci get network.mesh.ipaddr`
+}
+
+set_name() {
+echo "`date` setting name" >> $LG
+	myvar2=`get_pl_index`
+	myvar5=`uci get network.mesh.ipaddr`
+	myvar7=`uci set olsrd.@LoadPlugin[${myvar2}].dns_server=$myvar5`
+	uci commit
+	echo $myvar7
+}
+
+clear_name() {
+echo "`date` clearing name" >> $LG
+	myvar3=`get_pl_index`
+	uci delete olsrd.@LoadPlugin[${myvar3}].dns_server
+	uci commit
+}
+
+set_server() {
+	myvar4=`get_name`
+	echo $myvar4
+echo "`date` dns is [$myvar4] (blank if not set in nameservice)" >> $LG
+    if (test "" = "$myvar4")                                       
+        then                                                   
+echo "`date` setting server and restarting" >> $LG                     
+        $OLSRD stop                                            
+        sleep 3                                                
+        set_name                                               
+        $OLSRD start                                           
+    else                                                           
+        if (test "$myvar4" = `get_meshIP`)
+            then                      
+echo "`date` server already set" >> $LG           
+        else                              
+echo "`date` updating server and restarting" >> $LG
+            $OLSRD stop                
+            sleep 3                    
+            set_name                   
+            $OLSRD start               
+        fi                                 
+    fi 		
+}
+
+clear_server() {
+	myvar6=`get_name`
+	if !(test "" = 	"$myvar6")
+		then
+echo "`date` clearing server and restarting" >> $LG
+		$OLSRD stop
+		sleep 3
+		clear_name
+		$OLSRD start
+	else
+echo "`date` server already cleared" >> $LG		
+	fi		
+}
+
+
+
+echo "" > $LG
+if cat $NETFILE | grep -c "network.wan.up=1"
+	then
+echo "`date` iface is configured" >> $LG	
+	if (test $IFACE = `uci get wireless.@wifi-iface[0].device`)
+		then
+		if iwconfig  | grep -c "Not-Associated"
+			then
+echo "`date` wifi down.  restarting." >> $LG	
+			wifi
+			sleep 15
+                else                                                    
+echo "`date` wifi is associated." >> $LG 
+		fi
+	fi
+	uci show network > $NETTMP
+	GW=`cat $NETFILE $NETTMP | grep -m 1 -e "network.wan.gateway=.*" | sed 's/network.wan.gateway=\(.*\)/\1/'`
+	pl_gw_index=`uci show olsrd | grep -e 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_dyn_gw\.so' |
+	  sed 's/olsrd\.@LoadPlugin\[\(.*\)\]\.library=olsrd_dyn_gw\.so.*/\1/'`
+	rm $NETTMP
+	str="^0\.0\.0\.0 .*${IFACER}\$"
+	if route -n | grep -ce "$str" 
+		then 
+echo "`date` got default route, pinging gateway $GW" >> $LG
+		responses=`ping -c4 $GW | sed 's/^.*=\([0-9]*\.[0-9]*\) ms/\1/' | grep -oe "^[0-9]*\.[0-9]*$" | tr '\n\r' '\t'`
+	       	if (test "" = "$responses")
+	       		then 
+echo "`date` can't ping gateway at $GW"	>> $LG	
+			ifup wan > /dev/null 2>&1
+	       		sleep 10
+		else
+			for ping_ip in `uci get olsrd.@LoadPlugin[$pl_gw_index].Ping | sed 's/[:space:]/\n/'`
+				do
+echo "`date` trying to ping remote server $ping_ip" >> $LG
+				responses=`ping -c4 $ping_ip | sed 's/^.*=\([0-9]*\.[0-9]*\) ms/\1/' | 
+				  grep -oe "^[0-9]*\.[0-9]*$" | tr '\n\r' '\t'`
+				if !(test "" = "$responses")
+					then 
+echo "`date` got a reply from remote server $ping_ip" >> $LG
+					set_server
+					exit 0
+				fi
+			done
+echo "`date` can't ping remote servers.  deleting default route" >> $LG
+			route del default
+		fi
+       	else
+echo "`date` no default route, pinging remote servers" >> $LG
+		for ping_ip in `uci get olsrd.@LoadPlugin[$pl_gw_index].Ping | sed 's/[:space:]/\n/'`
+			do
+echo "`date` adding route and trying to ping remote server $ping_ip" >> $LG
+			route add -host $ping_ip gw $GW $IFACE 
+			responses=`ping -c4 $ping_ip | sed 's/^.*=\([0-9]*\.[0-9]*\) ms/\1/' | 
+			  grep -oe "^[0-9]*\.[0-9]*$" | tr '\n\r' '\t'`
+			route del -host $ping_ip gw $GW $IFACE 
+			if !(test "" = "$responses")
+				then 
+				ifup wan > /dev/null 2>&1
+				sleep 10
+				set_server
+				exit 0
+			fi
+		done
+echo "`date` can't ping remote servers, testing gateway" >> $LG
+		responses=`ping -c4 $GW | sed 's/^.*=\([0-9]*\.[0-9]*\) ms/\1/' | grep -oe "^[0-9]*\.[0-9]*$" | tr '\n\r' '\t'`
+	       	if (test "" = "$responses")
+       			then 
+echo "`date` can't ping gateway at $GW" >> $LG		
+			ifup wan > /dev/null 2>&1
+       			sleep 10
+       		fi
+       	fi
+fi
+clear_server
+exit 0

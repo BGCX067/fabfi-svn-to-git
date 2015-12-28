@@ -1,0 +1,212 @@
+#!/bin/sh
+
+#vars for downloading base configurations 
+ff_s='http://fabfi.fablab.af' #fabfi server
+ff_dld='/download/software/base_config/2_1_1/' # dld needs leading and trailing /
+ff_u='fabfi' #user
+ff_cfg='fabfi-files.tgz'
+ec="etc/config/"
+i_d="etc/init.d/"
+r_d="etc/rc.d/"
+chilliconf="etc/chilli/defaults"
+
+#temporary directory for downloaded files
+ff_tmp='/tmp/'
+ff_tdld='/tmp/setup/' #needs trailing /
+ff_td='/tmp/setup/packages/' #needs trailing / expected to be a direct sub of tdld. Tar file defines fabfi_config part
+ff_tdo='/tmp/setup/packages_optional/' #needs trailing / expected to be a direct sub of tdld. Tar file defines fabfi_config part
+ff_MACEnd=':fa:bf:1f:ab:f1'
+
+#misc constants
+ff_cIP=0
+ff_dIP=0
+ff_wm_abIP="10.102." #needs trailing .
+ff_m_abIP="10.101." #needs trailing .
+ff_m_cIP="0." #needs trailing .
+ff_l_abIP="10.103." #needs trailing .
+ff_t_abIP="10.104." #needs trailing . NEW for CHILLI
+ff_gw_dIP="1"
+default_wep="8bb8d3c8d3d8bb3dffd38db33f"
+
+echo ""
+echo "Welcome to the FabFi 4.0 device configuration script."  
+sleep 2
+echo ""
+
+
+until ((echo $fabfi_num | grep "^1[0-9][0-9]$")||(echo $fabfi_num | 
+  grep "^2[0-4][0-9]$")||(echo $fabfi_num | grep "^25[0-4]$")||(echo $fabfi_num | grep "^[1-9][0-9]\{0,1\}$")); do
+	echo "Enter the number of your FabFi (must be in range 1-254):"
+	read fabfi_num
+done 
+
+
+until ((echo $channel | grep "^1[0-1]$")||(echo $channel | grep "^[0-9]$")); do
+	echo "Now you must select the wireless channel, it must be the same for all connecting nodes."
+	echo "Enter the wireless channel (between 1-11):"
+	read channel
+done
+
+if test $channel -lt 10; then
+	bssid=0$channel$ff_MACEnd
+else
+	bssid=$channel$ff_MACEnd
+fi
+
+until (echo $distance | grep "^[1-9][0-9]*$"); do
+	echo "fabfi distance must be a positive integer greater than 0"
+	echo "Enter the transmit distance in meters"
+	read distance
+done 
+
+wep_key="ZzZzzZZ//";
+until (echo $wep_key | grep "^[0-9A-fA-F]*$"); do
+	echo "Now you need to select a wep key." 
+	echo "Select a wep key to use (type 'd' for Default. Default key is correct for FabFi Jalalabad):"
+	read wep_key
+	if [ $wep_key == "d" ]; then
+		wep_key=$default_wep;
+	fi;
+done 
+
+location="////";
+until (echo $location | grep "^[0-9a-zA-z\-\_]*$"); do
+	echo "What is your location?  NO SPACES or special characters:"
+	read location
+done 
+
+echo "ENTER THE FOLLOWING FOR COOVA.NET RADIUS CONFIG (or nothing's going to work)"
+echo "The next version of this script will allow configuration with different servers or without RADIUS..."
+sleep 1
+echo ""
+
+#echo "enter RADIUS secret"
+#read radsecret
+
+#echo "enter UAMSECRET"
+#read uamsecret
+
+#echo "enter RADIUS ADM_USR"
+#read admusr
+
+#echo "enter RADIUS ADM_PASS"
+#read admpass
+
+let m_dIP="$fabfi_num+$ff_dIP"
+#echo MESH and WIFIMESH Class D IP is: $meshing_dIP
+
+let lan_cIP="$fabfi_num+$ff_cIP" 
+#echo LAN Class C IP is: $lan_cIP
+
+
+echo "Symlinking wget for backwards compatibility. If you quit now, you'll have to restore it manually from /usr/bin/wget-real"
+# Copy wget for opkg-spoofing purposes
+cp -df /usr/bin/wget /usr/bin/wget-real
+rm /usr/bin/wget
+echo '#!/bin/ash' > /usr/bin/wget-opkg
+echo 'cp $4 $3' >> /usr/bin/wget-opkg
+chmod ugo+x /usr/bin/wget-opkg
+ln -s /usr/bin/wget-opkg /usr/bin/wget
+
+# Restoring wget..
+rm /usr/bin/wget
+cp -df /usr/bin/wget-real /usr/bin/wget
+rm /usr/bin/wget-real
+rm /usr/bin/wget-opkg
+cp -f /etc/opkg.conf.online /etc/opkg.conf
+echo "wget has been relinked successfully."
+                  
+ns_index=`uci show olsrd | grep -e 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_nameservice\.so' | 
+awk 'FS="[";{print $2}' | awk 'FS="]";{print $1};' | tail -1`
+
+#echo HS_NETWORK=${ff_t_abIP}${lan_cIP}.0 >> $chilliconf    # HotSpot Network (must include HS_UAMLISTEN)
+#echo HS_UAMLISTEN=${ff_t_abIP}${lan_cIP}.${ff_gw_dIP}  >> $chilliconf          # HotSpot IP Address (on subscriber network)
+#echo HS_DNS=${ff_t_abIP}${lan_cIP}.${ff_gw_dIP} >> $chilliconf 
+#echo HS_NASID=fabfi${fabfi_num} >> $chilliconf 
+#echo HS_LOC_NAME=fabfi${fabfi_num}     # WISPr Location Name and used in portal
+#echo HS_RADSECRET=$radsecret >> $chilliconf    # Set to be your RADIUS shared secret
+#echo HS_UAMSECRET=$uamsecret >> $chilliconf    # Set to be your UAM secret
+#echo HS_ADMUSR=$admusr >> $chilliconf 
+#echo HS_ADMPWD=$admpass >> $chilliconf 
+#cd /etc/rc.d
+#ln -s ../init.d/chilli S75chilli
+#cd /
+
+#set config variables
+uci set system.@system[0].hostname=fabfi${fabfi_num}
+uci set network.lan.ipaddr=${ff_l_abIP}${lan_cIP}.${ff_gw_dIP}
+uci set network.mesh.ipaddr=$ff_m_abIP${ff_m_cIP}${m_dIP}
+uci set network.wifimesh.ipaddr=$ff_wm_abIP${ff_m_cIP}${m_dIP}
+uci set olsrd.@Hna4[0].netaddr=${ff_l_abIP}${lan_cIP}.0
+# next three NEW for CHILLI
+#uci add olsrd Hna4
+#uci set olsrd.@Hna4[-1].netaddr=${ff_t_abIP}${lan_cIP}.0
+#uci set olsrd.@Hna4[-1].netmask=255.255.255.0
+uci set olsrd.@LoadPlugin[${ns_index}].name=fabfi${fabfi_num}
+uci set mini_snmpd.@mini_snmpd[0].location=$location
+#next two lines set domain for fabfi.lan set as tunnel gateway
+uci set dhcp.@domain[-1]=domain
+uci set dhcp.@domain[-1].ip=${ff_t_abIP}${lan_cIP}.${ff_gw_dIP}
+uci add dhcp domain
+uci set dhcp.@domain[-1]=domain
+uci set dhcp.@domain[-1].name=time.mesh
+uci set dhcp.@domain[-1].ip=$ff_m_abIP${ff_m_cIP}254
+uci add dhcp domain
+uci set dhcp.@domain[-1]=domain
+uci set dhcp.@domain[-1].name=master.mesh
+uci set dhcp.@domain[-1].ip=$ff_m_abIP${ff_m_cIP}254
+
+#new for CHILLI
+#uci delete dhcp.lan.start
+#uci delete dhcp.lan.limit
+#uci delete dhcp.lan.leasetime
+#uci set dhcp.lan.ignore=
+#uci set firewall.@zone[0].output=REJECT
+
+echo Hostname = `uci get system.@system[0].hostname`
+echo ""
+echo LAN IP = `uci get network.lan.ipaddr`
+#echo CHILLI GW IP = `uci get network.tunnel.ipaddr`
+echo MESH IP = `uci get network.mesh.ipaddr`
+echo WIFIMESH IP = `uci get network.wifimesh.ipaddr`
+
+echo ""
+uci set wireless.radio0.channel=$channel
+uci set wireless.radio0.macaddr=`cat /sys/class/ieee80211/phy0/macaddress`
+uci set wireless.@wifi-iface[0].bssid=$bssid
+uci set wireless.@wifi-iface[0].ssid=fabfi${channel}
+uci set wireless.radio0.distance=$distance
+uci set wireless.@wifi-iface[0].key=$wep_key
+uci set wireless.radio0.disabled=0
+
+uci set wireless.radio1.macaddr=`cat /sys/class/ieee80211/phy1/macaddress`
+
+echo Wireless channel = `uci get wireless.radio0.channel`
+echo Wireless distance = `uci get wireless.radio0.distance`
+#echo Wireless WEP key = `uci get wireless.@wifi-iface[0].key`
+sleep 2
+
+uci commit
+/etc/init.d/olsrd enable
+
+echo "Adding password file.  If you exit script before setting a password, you will need to reflash device"
+cp -f /etc/passwd.preconfig /etc/passwd
+
+echo ""
+echo "Choose a root password"
+passwd root
+
+#rm /etc/nodogsplash/htdocs/splash.html
+#ln -s /tmp/splash.html /etc/nodogsplash/htdocs/splash.html
+
+echo ""
+echo Configuration is complete!
+echo Your router is rebooting... 
+echo 1. WAIT 1 MINUTE
+echo 2. UNPLUG YOUR COMPUTER FROM THE ROUTER
+echo 3. WAIT 1 MINUTE
+echo 4. PLUG YOUR COMPUTER BACK INTO THE ROUTER
+echo ""
+sleep 4
+reboot &
+

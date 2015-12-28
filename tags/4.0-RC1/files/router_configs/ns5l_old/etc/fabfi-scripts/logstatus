@@ -1,0 +1,56 @@
+#!/bin/sh 
+net_test="www.google.com"
+sp='\t'
+plen=450
+tlen=5000
+
+if (test "00" = `date +"%y"`)
+then
+	sh /etc/fabfi-scripts/set-time
+fi
+        
+#list neighbors
+nbor=`echo '/link' | nc localhost 2006 | grep -oe "^[0-9].*" | cut -f 2,4,5 | tr "\t" ":" | tr "\n\r" ";" | sed -e "s/;$//"`
+
+#test gateways
+gw=""
+for line in `echo '/hna' | nc localhost 2006 | grep 0.0.0.0 | cut -f 2`
+ 	do
+ 		responses=`ping -c4 $line | grep -oe "[0-9]*\.[0-9]* ms" | grep -oe "[0-9]*\.[0-9]*" | tr '\n\r' '\t'`
+ 		if !(test "" = "$responses")
+ 		then 
+ 			gw="${line};${gw}"
+ 		fi
+ 		gw=`echo $gw | sed -e "s/;$//"`
+done
+
+#test net
+responses=`ping -c4 $net_test | grep -oe "[0-9]*\.[0-9]* ms" | grep -oe "[0-9]*\.[0-9]*" | tr '\n\r' '\t'`
+if (test "" = "$responses")
+then 
+	net=0
+else
+	net=1
+fi
+
+#get date
+od=`date +"%y-%m-%d\t%H:%M:%S" | tr -d '\n\r'`""
+
+#output result
+echo -e "$od$sp$nbor$sp$gw$sp$net" >> /etc/fabfi-scripts/ffstatus.log
+echo -e "$od$sp$nbor$sp$gw$sp$net" >> /var/etc/ffstatus.log
+
+if test $plen -lt `grep -c "" /etc/fabfi-scripts/ffstatus.log`
+then
+        tail -$plen /etc/fabfi-scripts/ffstatus.log > /tmp/ffstatus.log
+        cp /tmp/ffstatus.log /etc/fabfi-scripts/ffstatus.log
+        rm /tmp/ffstatus.log
+fi
+
+if test $tlen -lt `grep -c "" /var/etc/ffstatus.log`
+then
+        tail -$tlen /var/etc/ffstatus.log > /tmp/ffstatus2.log
+        cp /tmp/ffstatus2.log /var/etc/ffstatus.log
+        rm /tmp/ffstatus2.log
+fi
+

@@ -1,0 +1,29 @@
+config wifi-device  radio0
+        option type     mac80211
+        option channel  6
+        option hwmode   11na
+        option htmode   HT20
+#	option 'rts' '2000'
+#	option 'frag' '2048'
+        list ht_capab   SHORT-GI-40
+        list ht_capab   DSSS_CCK-40
+        option distance 100
+        option disabled 1
+
+config wifi-iface
+	option 'device' 'radio0'
+	option 'ssid' 'fabfi default2'
+	option 'network' 'wifimesh'
+	option 'mode' 'ap'
+	option 'hidden' '0'
+	option 'encryption' 'psk2'
+	option 'key' '8bb8d3c8d3dabbedffd38db33f'
+#	option 'bssid' '06:fa:bf:1f:ab:f1'
+
+config wifi-iface
+	option 'device' 'radio0'
+	option 'ssid' 'fabfi default'
+	option 'network' 'lan'
+	option 'mode' 'ap'
+	option 'hidden' '0'
+	option 'encryption' 'none'

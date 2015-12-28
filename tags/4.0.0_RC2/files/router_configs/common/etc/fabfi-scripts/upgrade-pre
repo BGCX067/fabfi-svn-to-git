@@ -1,0 +1,38 @@
+#!/bin/sh 
+SWURL=http://fabfi.googlecode.com/files/
+INITS=/etc/fabfi-scripts/upgrade-post
+INITRC=/etc/rc.d/S04upgrade-post
+INITSCR=/etc/fabfi-scripts/upgrade-post
+LOCAL=/tmp/
+PASS=/etc/passwd
+CFG=/etc/config
+GRP=/etc/group 
+CUST=/etc/init.d/custom-user-startup
+DRP=/etc/dropbear
+FW=/etc/firewall.user 
+RCL=/etc/rc.local
+
+model=`uci get system.@platform[0].profile`
+echo "model is $model"
+
+cd $LOCAL
+if `wget "${SWURL}fabfi-${model}-sysupgrade.bin"`
+    then
+
+	#create reboot script file and link to rc.d
+	echo "#!/bin/sh /etc/rc.common" > $INITS
+	echo "" >> $INITS
+	echo "START=04" >> $INITS
+	echo ". $INITSCR" >> $INITS
+	echo "" >> $INITS
+
+	ln -s $INITS $INITRC
+	chmod +x $INITS
+	tar -czf ${LOCAL}ffconfig.tar.gz $PASS $CFG $GRP $DRP $FW $RCL
+
+	#flash and reboot
+	sysupgrade -n -v -f ffconfig.tar.gz fabfi-${model}-sysupgrade.bin
+
+fi
+
+

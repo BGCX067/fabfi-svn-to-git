@@ -1,0 +1,84 @@
+config 'switch' 
+        option 'name' 'eth0'
+        option 'reset' '1'
+        option 'enable_vlan' '1'
+
+config switch_vlan 
+        option device   eth0
+        option vlan     '1'
+        option ports    '0 4t'
+
+config switch_vlan 
+       option device   eth0
+       option vlan     '2'
+       option ports    '1 2 3 4t'
+
+config 'interface' 'loopback'
+	option 'ifname' 'lo'
+	option 'proto' 'static'
+	option 'ipaddr' '127.0.0.1'
+	option 'netmask' '255.0.0.0'
+
+config 'interface' 'wan'
+	option 'ifname' 'eth1'
+	option 'proto' 'dhcp'	
+
+## If not WAN, then you have mesh ##
+# MESH networks .100.0-3.
+config 'interface' 'mesh'
+	option 'proto' 'static'
+	option 'ifname' 'eth0.2'	
+	option 'netmask' '255.255.252.0'
+	option 'defaultroute' '0'
+	option 'peerdns' '0'
+	option 'ipaddr' '10.100.0.1'
+
+config alias
+        option interface mesh
+        option proto static
+        option ipaddr 192.168.1.10
+        option netmask 255.255.255.0
+
+# WIFIMESH networks .104.0-3.
+config 'interface' 'wifimesh'
+	option 'proto' 'static'
+	option 'netmask' '255.255.252.0'
+	option 'defaultroute' '0'
+	option 'peerdns' '0'
+	option 'ipaddr' '10.104.0.1'
+
+# WIFIMESH networks .120.0-3.
+#config 'interface' 'adhocmesh'
+#	option 'proto' 'static'
+#	option 'netmask' '255.255.252.0'
+#	option 'defaultroute' '0'
+#	option 'peerdns' '0'
+#	option 'ipaddr' '10.120.0.1'
+
+## some networks may have an administrative lan, but not on ubnt
+# ALAN networks .108+(int)ff/254.ffmod254.1
+config 'interface' 'alan'
+	option 'proto' 'static'
+	option 'netmask' '255.255.255.0'
+	option 'defaultroute' '0'
+	option 'peerdns' '0'
+	option 'ifname' 'eth0.1'
+	option 'ipaddr' '10.108.1.1'
+
+# LAN networks .112+(int)ff/254.ffmod254.1
+#config 'interface' 'lan'
+#	option 'proto' 'static'
+#	option 'netmask' '255.255.255.0'
+#	option 'defaultroute' '0'
+#	option 'ifname' 'eth0.1'
+#	option 'peerdns' '0'
+#	option 'ipaddr' '10.112.1.1'
+
+# Chilli networks .116.ff. to .119.ff.
+config 'interface' 'chilli'
+	option 'proto' 'none'
+	option 'ifname' 'tun0'
+	option 'defaultroute' '0'
+	option 'peerdns' '0'
+
+

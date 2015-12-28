@@ -1,0 +1,6 @@
+
+HS_RADSECRET=n3ob5F8aTR    # Set to be your RADIUS shared secret
+HS_UAMSECRET=uzD4RAb5dh    # Set to be your UAM secret
+HS_ADMUSR=joinafricatest@coova.net
+HS_ADMPWD=dIVI26fF7c
+

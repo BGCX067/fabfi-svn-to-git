@@ -1,0 +1,15 @@
+#!/bin/sh 
+
+links=`echo '/links' | nc 127.0.0.1 2006 | grep -ce "^[0-9]" | tr -d "\r\n"`
+node=`uci get network.wifimesh.ipaddr | grep -oe "\.[0-9][0-9]*$" | grep -oe "[0-9][0-9]*"`
+str="s/#!#/${links}/"
+str2="s/#?#/${node}/"
+cat /etc/nodogsplash/splash.base | sed $str > /tmp/splash.tmp
+cat /tmp/splash.tmp | sed $str2 > /tmp/splash.html
+rm /tmp/splash.tmp
+
+cat /etc/nodogsplash/splash-auth.base | sed $str > /tmp/splash-auth.tmp
+cat /tmp/splash-auth.tmp | sed $str2 > /tmp/splash-auth.html
+rm /tmp/splash-auth.tmp
+
+

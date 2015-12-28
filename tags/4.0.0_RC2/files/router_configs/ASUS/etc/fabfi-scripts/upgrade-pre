@@ -1,0 +1,54 @@
+#!/bin/sh 
+SWURL=http://fabfi.fabfolk.com/quickstart/firmware/
+SYSVARS=/etc/fabfi-scripts/sysvars
+INITS=/etc/init.d/upgrade-post
+INITRC=/etc/rc.d/S04upgrade-post
+INITSCR=/etc/fabfi-scripts/upgrade-post
+LOCAL=/tmp/
+PASS=/etc/passwd
+
+model=`head -n1 /proc/diag/model`
+echo "model is $model"
+if [ "$model" == "Linksys WRT54G/GS/GL" ]
+    then
+    system=linksys_wrt54gl
+fi
+
+if [ "$model" == "ASUS WL-520gU" ]
+    then
+    system=asus_wl520gu
+fi
+
+cd $LOCAL
+if `wget "${SWURL}fabfi-${system}.trx"`
+    then
+
+echo "" > $SYSVARS
+
+echo vlan0=\'`uci get network.eth0.vlan0`\' >> $SYSVARS
+echo vlan1=\'`uci get network.eth0.vlan1`\' >> $SYSVARS
+echo vlan2=\'`uci get network.eth0.vlan2`\' >> $SYSVARS
+echo fabfi_num=\'`uci get network.wifimesh.ipaddr | grep -oe "\.[0-9][0-9]*$" | grep -oe "[0-9][0-9]*"`\' >> $SYSVARS
+echo channel=\'`uci get wireless.radio0.channel`\' >> $SYSVARS
+echo distance=\'`uci get wireless.radio0.distance`\' >> $SYSVARS
+echo wep_key=\'`uci get wireless.@wifi-iface[0].key`\' >> $SYSVARS
+echo location=\'`uci get mini_snmpd.@mini_snmpd[0].location`\' >> $SYSVARS
+echo "" >> $SYSVARS
+
+#create reboot script file and link to rc.d
+echo "#!/bin/sh /etc/rc.common" > $INITS
+echo "" >> $INITS
+echo "START=04" >> $INITS
+echo ". $INITSCR" >> $INITS
+echo "" >> $INITS
+
+ln -s $INITS $INITRC
+chmod +x $INITS
+tar -czf ffconfig.tar.gz $SYSVARS $INITS $INITRC $PASS 
+
+#flash and reboot
+sysupgrade -n -v -f ffconfig.tar.gz fabfi-${system}.trx
+
+fi
+
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+cp /etc/fabfi-scripts/ffstatus.log /var/etc/ffstatus.log
+sh /etc/fabfi-scripts/coordinateUpdate.sh
+sh /etc/fabfi-scripts/set-initial-time &
+sh /etc/fabfi-scripts/sigmeter wlan0 &
+
+

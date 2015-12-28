@@ -1,0 +1,5 @@
+#!/bin/sh
+cp /etc/fabfi-scripts/ffstatus.log /var/etc/ffstatus.log
+sh /etc/fabfi-scripts/set-initial-time &
+
+

@@ -1,0 +1,17 @@
+#!/bin/sh 
+INITRC=/etc/rc.d/S99squidsetup
+
+#fill in your custom commands here
+
+rm $INITRC
+mkdir /home/squid
+mkdir /home/squid/log
+mkdir /home/squid/cache
+chmod -R 777 /home/squid
+squid -z
+echo "ln -s /home/squid/log/ /var/logs" >> /etc/init.d/custom-user-startup
+echo "squid -D" >> /etc/init.d/custom-user-startup
+echo "iptables -t nat -A PREROUTING -p tcp -d ! 10.0.0.0/8 --dport 80 -j DNAT --to ${ff_m_abIP}${ff_m_cIP}${m_dIP}:3128" > /etc/firewall.user
+sleep 1
+reboot &
+

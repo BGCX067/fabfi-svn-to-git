@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Squid server IP
+SQUID_SERVER="69.18.119.244"
+
+# Interface connected to Internet
+INTERNET="eth0"
+
+# Address connected to LAN
+LOCAL="69.18.119.0/24"
+
+# Squid port
+SQUID_PORT="3128"
+
+# Clean old firewall
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+
+# Enable Forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Setting default filter policy
+iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+
+# Unlimited access to loop back
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+# Allow UDP, DNS and Passive FTP
+iptables -A INPUT -i $INTERNET -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# set this system as a router for Rest of LAN
+iptables -t nat -A POSTROUTING -o $INTERNET -j MASQUERADE
+iptables -A FORWARD -s $LOCAL -j ACCEPT
+
+# unlimited access to LAN
+iptables -A INPUT -s $LOCAL -j ACCEPT
+iptables -A OUTPUT -s $LOCAL -j ACCEPT
+
+# DNAT port 80 request comming from LAN systems to squid 3128 ($SQUID_PORT) aka transparent proxy
+iptables -t nat -A PREROUTING -s $LOCAL -p tcp --dport 80 -j DNAT --to $SQUID_SERVER:$SQUID_PORT
+
+# if it is same system
+iptables -t nat -A PREROUTING -i $INTERNET -p tcp --dport 80 -j REDIRECT --to-port $SQUID_PORT
+
+# DROP everything and Log it
+iptables -A INPUT -j LOG
+iptables -A INPUT -j DROP

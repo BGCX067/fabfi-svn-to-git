@@ -1,0 +1,20 @@
+#summary One-sentence summary of this page.
+
+<wiki:toc max_depth="2" />
+
+= Introduction =
+
+This is a tutorial for how to design your network.  It will eventually include details on how to choose node sites, design a toplogy, estimate bandwidth needs, etc.
+
+
+= Estimating bandwidth = 
+
+It can be proved for a reasonably large number of  users, N (http://perso.rd.francetelecom.fr/bonald/Pub/itc18-dim.pdf) that a reasonable estimate of required capacity is given by: 
+
+C = N/(1/a + 1/d - 1/c) 
+
+where C is total uplink capacity,  a is [http://en.wikipedia.org/wiki/Busy_hour Busy-hour] [http://en.wikipedia.org/wiki/Offered_load offered load] (BHOL), d is useful capacity and c is offered per-user capacity.  
+
+The FCC in the US [http://download.broadband.gov/plan/the-broadband-availability-gap-obi-technical-paper-no-1-chapter-4-network-economics.pdf recently estimated 160kbps for BHOL].  Knowing the speeds you are offering users (c) and the minimum speed you would like them to actually experience (d), you can then calculate the amount of bandwidth you need to serve them using the equation
+
+*If you don't like doing Math, to can download our [http://fabfi.googlecode.com/svn/wiki/files/BWCalculator.xls Bandwidth Calculator Spreadsheet]* (this works in Open Office too)

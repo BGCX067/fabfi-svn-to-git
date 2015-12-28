@@ -1,0 +1,80 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2010 OpenWrt.org
+
+START=99
+STOP=80
+
+SERVICE_USE_PID=1
+
+HAPROXY_BIN="/usr/sbin/haproxy"
+HAPROXY_CONFIG_ORG="/etc/haproxy.cfg"
+HAPROXY_PID="/var/run/haproxy.pid"
+
+RUN_D="/var/etc"
+HAPROXY_CONFIG=$RUN_D/haproxy.cfg
+cp $HAPROXY_CONFIG_ORG $HAPROXY_CONFIG
+
+
+haproxy_listen_add(){
+	
+	local cfg="$1"
+	config_get name "$cfg" name
+	[ -n "$name" ] || return 0
+		
+	config_get bind "$cfg" bind 
+	[ -n "$bind" ] || return 0
+	        
+	config_get bindPort "$cfg" bindPort 
+	[ -n "$bindPort" ] || return 0
+	        
+	config_get ipMode "$cfg" ipMode
+	[ -n "$ipMode" ] || return 0
+	        
+	config_get mode "$cfg" mode
+	[ -n "$mode" ] || return 0
+	        
+	config_get option "$cfg" option
+	[ -n "$option" ] || return 0
+	        
+	config_get reqadd "$cfg" reqadd
+	[ -n "$reqadd" ] || return 0
+	        
+	config_get servername "$cfg" servername
+	[ -n "$servername" ] || return 0
+	        
+	config_get serverIP "$cfg" serverIP
+	[ -n "$serverIP" ] || return 0
+       
+	if [ $ipMode == "ipv6" ]; then
+       
+		bindIP=$(echo $( /sbin/uci -P /var/state get network.$bind.ip6addr ):$bindPort)
+	else
+		bindIP=$(echo $( /sbin/uci -P /var/state get network.$bind.ipaddr ):$bindPort)
+	fi	
+		
+	echo "listen $name" >> $HAPROXY_CONFIG
+	echo "bind $bindIP" >> $HAPROXY_CONFIG
+	echo "mode $mode" >> $HAPROXY_CONFIG
+	echo "option $option" >> $HAPROXY_CONFIG
+	echo "reqadd $reqadd" >> $HAPROXY_CONFIG
+	echo "server $servername $serverIP" >> $HAPROXY_CONFIG
+}
+
+start() {
+	[ -d $RUN_D ] || mkdir -p $RUN_D
+
+	config_load haproxy 
+
+	config_foreach haproxy_listen_add listen
+	service_start $HAPROXY_BIN -q -D -f "$HAPROXY_CONFIG" -p "$HAPROXY_PID"
+}
+
+stop() {
+	$HAPROXY_BIN -q -f $HAPROXY_CONFIG -p $HAPROXY_PID -st $(cat $HAPROXY_PID)
+	service_stop $HAPROXY_BIN
+}
+
+reload() {
+	$HAPROXY_BIN -q -f $HAPROXY_CONFIG -p $HAPROXY_PID -sf $(cat $HAPROXY_PID)
+}
+

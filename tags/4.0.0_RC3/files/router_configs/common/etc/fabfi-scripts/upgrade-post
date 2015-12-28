@@ -1,0 +1,63 @@
+#!/bin/sh 
+RCL=/etc/rc.local
+
+#fill in your custom commands here
+
+#these commands designed to upgrade from 4.0.0_RC2
+echo ""
+echo ""
+echo "RUNNING POSTUPGRADE ACTIONS"
+
+uci delete system.@rdate[0]
+uci add system rdate
+uci commit system
+cd /overlay/etc/config
+rm timeserver
+rm qos
+sed "/timeserver/d" `ls | grep "META_"` > /tmp/META
+mv -f /tmp/META `ls | grep "META_"`
+sed "/qos/d" `ls | grep "META_"` > /tmp/META
+mv -f /tmp/META `ls | grep "META_"`
+
+mkdir /home
+mkdir /home/squid
+mkdir /home/squid/log
+mkdir /home/squid/cache
+chmod -R 777 /home/squid
+
+source /etc/config/fabfimap.cfg
+lat=`echo $nodeCoords | sed 's/\(.*\), .*/\1/'`
+lon=`echo $nodeCoords | sed 's/.*, \(.*\)/\1/'`
+ns_index=`uci show olsrd | grep -e 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_nameservice\.so' | awk 'FS="[";{print $2}' | awk 'FS="]";{print $1};' | tail -1`
+uci set olsrd.@LoadPlugin[${ns_index}].lat=$lat
+uci set olsrd.@LoadPlugin[${ns_index}].lon=$lon
+uci set olsrd.@LoadPlugin[${ns_index}].latlon_file=/var/run/latlon.js
+uci commit olsrd
+newserver=`uci get chilli.@configuration[0].uamserver | sed 's,^\(.*\)\(10\.116\)\(.*\)$,\110.112\3,'` 
+uci set chilli.@configuration[0].uamserver=$newserver
+uci set chilli.@configuration[0].uamallowed=master.mesh,radius.mesh,time.mesh,map.mesh,10.0.0.0/8
+uci set chilli.@configuration[0].uamdomain3=.wikipedia.org
+uci set chilli.@configuration[0].uamdomain4=.wikimedia.org
+uci set chilli.@configuration[0].uamdomain=.ac.ke
+uci set chilli.@configuration[0].uamdomain2=.edu
+uci set chilli.options.keepalive=1
+uci set chilli.options.statusfile=/var/run/chilli.status
+uci set chilli.options.layer3=0
+uci set chilli.options.anyip=0
+uci set chilli.options.redir=0
+
+uci commit chilli
+
+echo "POSTUPGRADE COMPLETE.  Deleting rc.local entry for this script"
+
+#remove entry for upgrade-post from rc.local
+sed "/sh \/etc\/fabfi-scripts\/upgrade-post/d" $RCL > /tmp/RCL
+mv -f /tmp/RCL $RCL
+
+echo "Rebooting.  Bye!"
+echo "" 
+echo ""
+
+sleep 1
+reboot &
+

@@ -1,0 +1,27 @@
+#summary Top level How-To page
+<wiki:toc max_depth="4" />
+
+= Introduction =
+This page is a table of contents for all of the !HowTo documentation on this site.  Follow the links below for what you want to build.
+
+*Note: We STRONGLY recommend using linux for working with fabfi.  If you don't want to change your OS, run Ubuntu from a [http://www.ubuntu.com/desktop/get-ubuntu/download LiveCD].*
+
+= Core Tasks =
+
+The most common use of a FabFi system is to extend or expand a high speed internet connection and charge users so as to recover cost of the leased bandwidth.  
+
+The fabfi wireless system consists of three major components which are all open source:
+
+  * *[FabfiCloud FabFolk's FabFi Cloud Services] (or make your own [FabfiServer Fabfi Server])*. The Fabfi server runs in "the cloud", handles the authentication of clients and serves the stats page.  Authentication and user accounting is managed centrally on the Fabfi Server.
+  * Make and install physical [FabfiNodes Fabfi Nodes].  Any node can be an uplink to the internet.
+    * *[FabfiNodes#HeadNode Headnode]* are local DNS servers and web caches
+    * *[FabfiNodes#CommonNode Common Nodes]* make up the physical mesh network
+  * *[RFReflectors Fabfi Reflectors]* are used to enhance the RF signal of wifi devices for long-range links.
+
+Administrators [UserAndGroupSettings configure Users and Groups] to control access to the network.  
+
+= Advanced Development =
+
+In addition to the basic configuration instructions, we also have a section on Advanced Development that explains how to build images from scratch and perform other custom tasks: 
+
+  * [HowtoBuildAFabFiImage Build your own FabFi Image]

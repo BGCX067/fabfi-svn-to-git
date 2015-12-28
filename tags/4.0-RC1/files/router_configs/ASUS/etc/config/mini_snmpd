@@ -1,0 +1,7 @@
+config 'mini_snmpd'
+	option 'enabled' '1'
+	option 'community' 'public'
+	option 'location' 'default'
+	option 'contact' 'fabfi@fabfolk.com'
+	option 'disks' '/tmp,/jffs'
+	option 'interfaces' 'eth0.0,eth0.1,eth0.2,wlan0' # Max 4 

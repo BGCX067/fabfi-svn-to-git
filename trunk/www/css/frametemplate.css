@@ -1,0 +1,167 @@
+html
+{
+	height:100%;
+	margin:0 auto;
+}
+body
+{
+	background-color:#FFFFFF;
+	font-family:Arial;
+	font-size:12pt;
+	text-align:justify;
+	text-align:center;
+	height:100%;
+  	margin:0 auto;
+	border-right:solid thick #c1c1c1;
+}
+a
+{
+	text-decoration:none;
+   
+}
+
+a:hover
+{
+	text-decoration:underline;
+}
+
+#jalogo
+{
+	position:relative;
+	margin-top:5px;
+	margin-left:5px;
+        width:133px;
+        height:134px;
+	background-image:url(../images/template/jalogo_sm.png);
+	z-index:200;
+}
+
+#pageborder 
+{
+  position:relative;
+  background: #FFFFFF; 
+  top:-115px;
+  margin-left:25px;
+  margin-right:0px;
+}
+
+#pageborder_map 
+{
+  position:relative;
+  background: #FFFFFF; 
+  top:-115px;
+  margin-left:25px;
+  margin-right:5px;
+}
+
+#navborder
+{
+  top:-10px;
+  left:36px;
+  width:85px;
+  height:100px;
+  z-index:100;
+}
+
+#mainframe
+{
+  position:relative;
+  top:0px;
+  left:-18px;
+  margin-left:5px;
+  margin-top:80px;
+  text-align:left;
+  width:165px;
+  vertical-align:center;
+  min-height:200px;
+  overflow:hidden;
+}
+#subpage
+{
+  width:100%;
+}
+
+.con { 
+  position:relative;
+}
+.contop { 
+  background: url(../images/template/contentborder_n.png) repeat-x top right;   
+}
+.contop div { 
+  font-size: 0;
+  height: 13px; 
+  background: url(../images/template/contentborder_ne.png) no-repeat top right; 
+}
+.contop div div { 
+  font-size: 0;
+  height: 13px; 
+  background: url(../images/template/contentborder_nw.png) no-repeat top left; 
+}
+.conbottom { 
+  background: url(../images/template/contentborder_s.png) repeat-x bottom left; 
+}
+.conbottom div { 
+  font-size: 0;
+  height: 13px; 
+  background: url(../images/template/contentborder_se.png) no-repeat bottom right; 
+}
+.conbottom div div { 
+  font-size: 0;
+  height: 13px; 
+  background: url(../images/template/contentborder_sw.png) no-repeat bottom left; 
+}
+.concontent {
+background-color:#EAEAEA;
+}
+.concl {
+  background: url(../images/template/contentborder_w.png) repeat-y top left; 
+  padding-left:13px;
+}
+.concr {
+  background: url(../images/template/contentborder_e.png) repeat-y top right; 
+  padding-right:13px;
+}
+
+
+.pg { 
+  position:relative;
+}
+.pgtop { 
+  background: url(../images/template/pgborder_n.png) repeat-x top right; 
+  height: 20px;   
+}
+.pgtop div { 
+  font-size: 0;
+  height: 20px; 
+  background: url(../images/template/pgborder_nw.png) no-repeat top left; 
+}
+.pgtop div div { 
+  font-size: 0;
+  height: 20px; 
+  background: url(../images/template/pgborder_ne.png) no-repeat top right; 
+}
+.pgbottom { 
+  background: url(../images/template/pgborder_s.png) repeat-x bottom left; 
+}
+.pgbottom div { 
+  font-size: 0;
+  height: 48px; 
+  background: url(../images/template/pgborder_sw.png) no-repeat bottom left; 
+}
+.pgbottom div div { 
+  font-size: 0;
+  height: 48px; 
+  background: url(../images/template/pgborder_se.png) no-repeat bottom right; 
+}
+.pgcontent {
+  padding: 0px 10px 0px 10px;
+}
+.pgcl {
+  background: url(../images/template/pgborder_w.png) repeat-y top left; 
+  padding-left:20px;
+}
+.pgcr {
+  background: url(../images/template/pgborder_e.png) repeat-y top right; 
+  padding-right:30px;
+}
+

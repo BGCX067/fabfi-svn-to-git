@@ -1,0 +1,54 @@
+#!/bin/sh /etc/rc.common
+
+START=39
+STOP=39
+
+ff_no=$(uci get fabfi.@node[0].fabfiNumber)
+
+
+if [ $ff_no > 255 ]; then
+	part1=$(expr $ff_no  % 255)
+	part2=$(expr $ff_no  / 255)
+	subnet=10.$part2.$part1.0
+else
+	subnet=10.0.$ff_no.0
+fi
+
+ip6_subnet=0::ffff:$subnet/120
+is_gateway=$(uci get fabfi.@node[0].headnode)
+
+start() {
+	if [ $is_gateway == "1" ]; then
+
+		ip link set siit0 up
+		ip route add 10.0.0.0/8 dev siit0
+		ip -6 route add 0::ffff:0:0/96 dev siit0
+
+	else
+
+		ip link set siit0 up
+		ip route add default dev siit0
+		ip -6 route add $ip6_subnet dev siit0
+
+	fi
+
+	}
+
+stop() {
+
+	is_gateway=$(uci get fabfi.@node[0].headnode)
+
+	if [ $is_gateway == "1" ]; then
+
+		ip link set siit0 down
+		ip route del 10.0.0.0/8 dev siit0
+		ip -6 route del 0::ffff:0:0/96 dev siit0
+
+	else
+
+		ip link set siit0 down
+		ip route del default dev siit0
+		ip -6 route del $ip6_subnet dev siit0
+
+	fi
+}

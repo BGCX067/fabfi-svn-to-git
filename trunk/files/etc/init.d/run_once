@@ -1,0 +1,32 @@
+#!/bin/sh /etc/rc.common
+
+START=32
+
+start() {
+
+	echo "*/1 * * * * /bin/ash /etc/fabfi/scripts/copy-files.sh 2> /dev/null" >> /etc/crontabs/root
+	echo "*/2 * * * * sh /etc/fabfi/scripts/fabfimap.sh > /dev/null" >> /etc/crontabs/root
+	echo "*/5 * * * * sh /etc/fabfi/scripts/offline-log.sh > /dev/null" >> /etc/crontabs/root
+
+	updateserver="http://fabfi.googlecode.com/files/"
+	openwrt=$(cat /etc/fabfi/files/openwrt_info  | grep Revision | cut -d ":" -f 2 | cut -c2-)
+	fabfi=$(cat /etc/fabfi/files/fabfi_info  | grep Revision | cut -d ":" -f 2 | cut -c2-)
+	platform=$(cat /proc/cpuinfo | grep machine | cut -d ":" -f 2 | cut -c2- | tr -d "\n")
+	
+	cp /etc/fabfi/files/logo2 /etc/banner 
+	printf " ${platform} \n Fabfi r${fabfi} - OpenWrt r${openwrt} \n $(cat /proc/version  | cut -d "(" -f 1)" >> /etc/banner
+	printf "\n - - - - - - - - - - - - - - - - - -\n" >> /etc/banner
+	
+	platform=$( uci get system.@system[0].platform | tr -d " " )
+	uci -q set fabfi.@node[0].platform=${platform}
+	uci -q set fabfi.@servers[0].updateserver=$updateserver
+	uci -q set network.lan.ipaddr=192.168.100.1
+	uci -q set network.lan.netmask=255.255.0.0
+	uci commit
+	/etc/init.d/network restart
+	uci commit
+
+	rm -rf /etc/init.d/run_once
+	rm -rf /etc/rc.d/S32run_once
+}
+

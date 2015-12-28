@@ -1,0 +1,102 @@
+#summary Home Page for step-by-step install instructions.
+
+= System Overview =
+
+Every Fabfi system consists of one or more _Head nodes,_ and one or more _Common Nodes_.  The network access is controlled, and network performance monitored, by  by a _management server_, which can either be installed locally or in any location on the public internet. For networks where IPv6 is not provided natively by the uplink, the network uses a _tunnel provider_ on the internet to obtain an IPv6 address.
+
+This guide will walk you through the steps of:
+ # Registering for an account on the FabFi management server
+ # Obtaining an IPv6 ip address
+ # Flashing a FabFi device
+ # Configuring your first network
+
+
+
+=Part 1: Register for a FabFi provider account=
+
+Coming Soon.  
+
+`*` You do not need a fabfi operator account if you prefer to [FabfiServer5 build your own management server].
+
+=Part 2: Configure IPv6 Tunnel=
+
+*If your Internet Service Provider (ISP) already provides you with an IPv6 address with a /48 subnet mask, you may skip this step.*
+
+ * If you have a static IPv4 IP from your internet service provider, you must configure a SIT tunnel.  To do this:
+  # Obtain a free account from [http://tunnelbroker.net/register.php tunnelbroker.net]`*`.  
+  # Connect any computer or home wireless router that will respond to `ping` to the IPv4 address you would like to use.  
+  # In your tunnelbroker account, click "Create Regular tunnel" on the left sidebar.  
+  # Enter your static IPv4 address, then choose a location closest to you.
+  # A green box should appear under the IP you entered, indicating that tunnelbroker can reach it via `ping`.  If not, make sure your address in pingable
+  # Click "Create Tunnel"
+  # On the page for your new tunnel, click "Assign/48".  The link should be replaced with an IP address.
+  # You're done!  (the router configuration script will automatically set up the other end of the tunnel for you)  
+ 
+ * For _dynamic_ public IPs or networks hidden behind a NAT, you must [https://www.sixxs.net/signup/ obtain a tunnel account through SixXs.net] (this process may take as long as two days to complete).   
+  # Once you have a SixXS account, log in and navigate to the "request tunnel" link on the left side.  
+  # Choose tunnel type:
+   * If you have a _dynamic_ public IP, create a dynamic tunnel
+   * If you are behind a NAT, create an AYIYA tunnel
+  # Enter the City your endpoint is in and click "Next Step"
+  # On the following page, select the endpoint closest to you, and fill in the reason for selecting the endpoint / use of tunnel.  This WILL be read by a real person, so be genuine in your response.  
+  # Click "Place Request for New Tunnel"
+  # Your tunnel will typically be approved in a few hours and you will be notified by email.
+  # Once your tunnel is approved, go to your homepage and click "request subnet" on the right.  
+  # Select your new tunnel from the dropdown box and enter a reason for needing a subnet.  Again, this WILL be read by a real person, so be genuine in your response.
+  # Your request will typically be approved in a few hours and you will be notified by email.
+  
+`*` You can also obtain static tunnels from SixXS.net, but their process is slower, so best to avoid them unless you are behind a NAT or do not have a static IPv4 IP.  
+
+=Part 3: Flash device firmware=
+
+_This tutorial will help you configure a simple network using the starter kits available at [http://store.fabfolk.com the Fabfolk Store].  If you intend to follow the tutorial verbatim, you should flash the routers from either:
+ * 2 "City-Scale" kits (developer or outdoor)
+ * or 1 "Budget" Head Node and 1 "Budget" Common Node Kit_
+
+=== Prepare your computer ===     
+
+This tutorial is based on ubuntu 11.04`*`:
+
+ # Install TFTP
+{{{
+sudo apt-get install tftp
+}}}
+ # Set up Serial communication _(This section is only required for users of the Linksys WRT1260NL)_
+  # Install Minicom
+{{{
+sudo apt-get install minicom
+}}}
+  # [SerialConverter Build CMOS Serial-->USB adapter]
+
+<wiki:comment># Obtain a USB to CMOS-level serial adapter, such as [http://www.makershed.com/FTDI_Friend_v1_0_p/mkad22.htm?1=1&CartID=0 this]
+   # Wire the  some wire or a header to attach the converter to the router, and a usb cable to connect to your computer *TODO: Spec a Kit with all the right components*</wiki:comment>
+
+`*`If you do not have a computer running Ubuntu or another debian-based linux machine, we recommend you obtain one before proceeding.  If you do not have a computer that you can configure to run linux natively, you can boot Ubuntu from an installation CD or USB Stick as described on the [http://www.ubuntu.com/download/ubuntu/download Ubuntu download page].
+
+=== Download and install firmware ===
+
+The firmware image and installation procedure for each device is different.  Proceed by choosing your device:
+
+ * Linksys WRT160NL
+ * Ubiquiti RouterStation
+ * Ubiquiti PicoStation and NanoStation-Loco
+
+=Part 4: Configure your first network=
+
+_Follow these instructions to build a simple network with the [http://store.fabfolk.com Fabfolk Starter Kits].  If you would like to configure your network differently, you might want to read AdvancedNetworkDesign._
+
+== Configuring the City-Scale Kit ==
+
+coming soon
+
+== Configuring the Budget Kit ==
+
+coming soon
+
+<wiki:comment> * Each device in a fabfi network has one or more radios 
+ * Each radio in a Fabfi device can make one of three different types of connections:
+  # 5Ghz mesh
+  # 2.4Ghz mesh
+  # 2.4Ghz client access
+  # (coming soon) 2.4Ghz client access + mesh
+</wiki:comment>

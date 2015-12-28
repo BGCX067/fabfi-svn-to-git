@@ -1,0 +1,5 @@
+root:$1$e0f3qftC$0RPppobVi.WDOkVIUn2VP.:0:0:root:/root:/bin/ash
+fab:$1$zjIp8Byd$hv/gpsDiuK1S.LNwp/7aT1:0:0:fab:/root:/bin/ash
+nobody:*:65534:65534:nobody:/var:/bin/false
+daemon:*:65534:65534:daemon:/var:/bin/false
+nagios:x:50:50:nagios:/var/run/nagios:/bin/false 

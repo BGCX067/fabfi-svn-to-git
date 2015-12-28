@@ -1,0 +1,13 @@
+#!/bin/sh 
+
+for line in `uci show timeserver | grep hostname | cut -d "=" -f 2`
+	do
+	echo "trying to sync with $line"
+	if `rdate -s $line`
+		then
+		echo "got time"
+		exit 0;
+	fi
+done
+echo "set-time: failed to update time"
+exit 0;

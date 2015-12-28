@@ -1,0 +1,127 @@
+#!/bin/sh
+
+SIGTMP="/tmp/sigtemp"
+LEDIR="/sys/class/leds/" #Needs trailing /
+LED3="wrt160nl:blue:wlan"
+LED2="wrt160nl:amber:wps"
+LED1="wrt160nl:blue:wps"
+
+RUNS=0
+MAXRUNS=900
+
+TRH1=50
+TRH1B=55
+
+TRH2=60
+TRH2B=65
+
+TRH3=70
+TRH3B=75
+
+TRH4=80
+TRH4B=85
+
+OLDVAL=0
+
+
+#echo begin
+
+clear1() {
+        echo 0 > ${LEDIR}${1}/brightness
+}
+
+set1() {
+        echo 1 > ${LEDIR}${1}/brightness
+}
+
+
+blink1() {
+        clear1 $1
+        set1 $1
+        echo heartbeat > ${LEDIR}${1}/trigger
+}
+
+clear_all() {
+        clear1 $LED1
+        clear1 $LED2
+        clear1 $LED3
+}
+
+
+clear_all
+while [ $RUNS -lt $MAXRUNS ]
+        do
+        RUNS=`expr $RUNS + 1`
+
+if [ `iwconfig $1 | grep -c $1` -gt 0 ]
+then
+        iw dev $1 station dump | grep 'signal' | cut -d - -f 2 | cut -d d -f 1 > $SIGTMP
+#echo "----------------------"
+#echo "oldval $OLDVAL"        
+        REZ="100"
+        while read line
+                do 
+                if [ $line -lt $REZ ]
+                        then
+                        REZ=$line
+                fi
+        done < $SIGTMP
+#echo "rez $REZ"
+        if [ $REZ -ne 100 ]; then
+                if [ $REZ -ne $OLDVAL ]; then
+                        clear_all
+                        if [ $REZ -lt $TRH1 ]; then
+#echo "level1 $REZ"
+                                set1 $LED1
+                                set1 $LED3
+                        else
+                        if [ $REZ -lt $TRH1B ]; then
+#echo "level1b"
+                                blink1 $LED1
+                                set1 $LED3
+                        else
+                                if [ $REZ -lt $TRH2 ]; then
+#echo "level2"
+	                                set1 $LED1
+                                        set1 $LED2
+                                        set1 $LED3
+                                else
+                                if [ $REZ -lt $TRH2B ]; then
+#echo "level2b"
+                                        blink1 $LED1
+                                        blink1 $LED2
+                                        set1 $LED3
+                                else
+                                        if [ $REZ -lt $TRH3 ]; then
+#echo "level3"
+                                                set1 $LED2
+	                                        set1 $LED3
+                                        else
+                                        if [ $REZ -lt $TRH3B ]; then
+#echo "level3b"
+                                                blink1 $LED2
+                                                set1 $LED3
+                                        else
+                                                if [ $REZ -lt $TRH4 ]; then
+#echo "level4"
+                                                        set1 $LED3               
+                                                else
+#echo "level4b"
+                                                        blink1 $LED3                            
+                                                fi
+                                        fi
+                                        fi
+                                fi
+                                fi
+                        fi
+                        fi
+                        OLDVAL=$REZ
+                fi
+        else
+                clear_all
+        fi
+fi
+sleep 2
+done
+exec sh /etc/fabfi-scripts/sigmeter $1 &
+

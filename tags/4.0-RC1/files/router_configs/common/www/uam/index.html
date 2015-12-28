@@ -1,0 +1,75 @@
+<html>
+<head>
+<!--
+      A purely HTML based captive portal using the JSON interface of CoovaChilli
+-->
+
+<title>JoinAfrica Hotspot</title>
+<style><!--
+body,td,a,p,h{
+  font-family:arial,sans-serif;
+}
+body {
+  text-align: center;
+  padding-top: 0px;
+  margin: auto;
+}
+#MyChilli {
+  margin: auto;
+  position:relative;
+  top:0px;
+  left:0px;
+  width: 670px;
+  height:500px;
+  text-align: left;
+  padding: 0px 0 0px 0;
+}
+#locationName {
+  position:relative;
+  height: 30px;
+  width:300px;
+  font-size: 80%;
+  font-weight: regular;
+  font-style:italic;
+  top:18px;
+  left:235px;
+}
+#chilliPage {
+  position:relative;
+  padding: 5px 5px 5px 5px;
+  left:25px;
+  top:190px;
+  width:200px;
+  margin-top:0px;
+  z-index:200;
+}
+#locationName {
+  z-index:200
+}
+#startTimeRow {
+  display: none;
+}
+#sessionIDRow {
+  display: none;
+}
+#signUpRow {
+  display: none;
+}
+-->
+</style>
+</head>
+<body>
+		<div id="MyChilli">
+			<div id="noLocation" style="display:none;">
+			<p style="padding-top: 100px;"><strong>You are not at a hotspot.</strong> If you want to see a a sample login page using the <a 	href="http://www.coova.org/CoovaChilli/JSON">JSON interface</a> of <a href="http://www.coova.org/CoovaChilli">CoovaChilli</a>, then 				<a href="javascript: window.location = 'view-source:' + window.location.href;">view the source</a> of this page.</p>
+			</div>
+
+			<script id='chillijs' src='/uam/chilli.js'></script>
+		</div>
+<iframe src ="http://master.mesh/splash.html" width="670" height="500" 
+ frameborder="0" scrolling="no"  style="position:relative; top:-500px;margin:auto;z-index:100;">
+  <p>Your browser does not support iframes.</p>
+</iframe>
+</body>
+</html>
+

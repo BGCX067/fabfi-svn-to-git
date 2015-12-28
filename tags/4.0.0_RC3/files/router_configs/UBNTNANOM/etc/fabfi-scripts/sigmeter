@@ -1,0 +1,126 @@
+#!/bin/sh
+############################################
+# sigmeter.sh
+# A script to replace signal meter functionality on Ubiquiti devices running Openwrt Backfire with added resolution
+# Developed and licensed as part of the fabfi wireless project http://code.google.com/p/fabfi/
+# Contact Keith Berkoben fabfi@fabdolk.com
+#
+# To configure, set your threshold values below in dBm and add an init'd script or cron job to run script at startup
+#############################################
+SIGTMP="/tmp/sigtemp"
+LEDIR="/sys/class/leds/" #Needs trailing /
+LED4="ubnt:red:link1"
+LED3="ubnt:orange:link2"
+LED2="ubnt:green:link3"
+LED1="ubnt:green:link4"
+
+RUNS=0
+MAXRUNS=900
+
+TRH1=50
+TRH1B=55
+
+TRH2=60
+TRH2B=65
+
+TRH3=70
+TRH3B=75
+
+TRH4=80
+TRH4B=85
+
+OLDVAL=0
+
+
+#echo begin
+
+clear1() {
+        echo 0 > ${LEDIR}${1}/brightness
+}
+
+set1() {
+        echo 1 > ${LEDIR}${1}/brightness
+}
+
+
+blink1() {
+        clear1 $1
+        set1 $1
+        echo heartbeat > ${LEDIR}${1}/trigger
+}
+
+clear_all() {
+        clear1 $LED1
+        clear1 $LED2
+        clear1 $LED3
+        clear1 $LED4
+}
+
+
+clear_all
+while [ $RUNS -lt $MAXRUNS ]
+        do
+        RUNS=`expr $RUNS + 1`
+
+        iw dev $1 station dump | grep 'signal' | cut -d - -f 2 | cut -d d -f 1 > $SIGTMP
+        REZ="100"
+        while read line
+                do 
+                if [ $line -lt $REZ ]
+                        then
+                        REZ=$line
+                fi
+        done < $SIGTMP
+        if [ $REZ -ne 100 ]; then
+                if [ $REZ -ne $OLDVAL ]; then
+                        clear_all
+                        if [ $REZ -lt $TRH1 ]; then
+                                set1 $LED1
+                                set1 $LED2
+                                set1 $LED3
+                                set1 $LED4
+                        else
+                        if [ $REZ -lt $TRH1B ]; then
+                                blink1 $LED1
+                                set1 $LED2
+                                set1 $LED3
+                                set1 $LED4
+                        else
+                                if [ $REZ -lt $TRH2 ]; then
+                                        set1 $LED2
+                                        set1 $LED3
+                                        set1 $LED4
+                                else
+                                if [ $REZ -lt $TRH2B ]; then
+                                        blink1 $LED2
+                                        set1 $LED3
+                                        set1 $LED4
+                                else
+                                        if [ $REZ -lt $TRH3 ]; then
+                                                set1 $LED3
+                                                set1 $LED4
+                                        else
+                                        if [ $REZ -lt $TRH3B ]; then
+                                                blink1 $LED3
+                                                set1 $LED4
+                                        else
+                                                if [ $REZ -lt $TRH4 ]; then
+                                                        set1 $LED4               
+                                                else
+                                                        blink1 $LED4               
+                                                fi
+                                        fi
+                                        fi
+                                fi
+                                fi
+                        fi
+                        fi
+                        OLDVAL=$REZ
+                fi
+        else
+                clear_all
+        fi
+        sleep 2
+done
+exec sh /etc/fabfi-scripts/sigmeter $1 &
+

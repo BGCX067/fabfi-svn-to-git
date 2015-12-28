@@ -1,0 +1,69 @@
+#!/bin/sh 
+net_test="www.google.com"
+sp='\t'
+plen=450
+passb=150
+tpassb=250
+tlen=3250
+let maxp=$plen+$passb
+let maxt=$tlen+$tpassb
+
+if (test "2010" -gt `date +"%Y"`)
+then
+	sh /etc/fabfi-scripts/set-time
+fi
+        
+#list neighbors
+nbor=`echo '/link' | nc localhost 2006 | grep -oe "^[0-9].*" | cut -f 2,4,5 | tr "\t" ":" | tr "\n\r" ";" | sed -e "s/;$//"`
+
+#test gateways
+gw=""
+for line in `echo '/hna' | nc localhost 2006 | grep 0.0.0.0 | cut -f 2`
+ 	do
+ 		responses=`ping -c4 -s1 $line | grep -oe "[0-9]*\.[0-9]* ms" | grep -oe "[0-9]*\.[0-9]*" | tr '\n\r' '\t'`
+ 		if !(test "" = "$responses")
+ 		then 
+ 			gw="${line};${gw}"
+ 		fi
+ 		gw=`echo $gw | sed -e "s/;$//"`
+done
+
+#test net
+responses=`ping -c4 -s1 $net_test | grep -oe "[0-9]*\.[0-9]* ms" | grep -oe "[0-9]*\.[0-9]*" | tr '\n\r' '\t'`
+if (test "" = "$responses")
+then 
+	net=0
+else
+	net=1
+fi
+
+#get date
+od=`date +"%y-%m-%d\t%H:%M:%S" | tr -d '\n\r'`""
+
+
+#populate logfile in RAM from flash
+tlines=`grep -c "" /var/etc/ffstatus.log`
+plines=`grep -c "" /etc/fabfi-scripts/ffstatus.log`
+if test $tlines -lt $plines
+then
+	cp /etc/fabfi-scripts/ffstatus.log /var/etc/ffstatus.log
+fi
+
+#output result to RAM log
+echo -e "$od$sp$nbor$sp$gw$sp$net" >> /var/etc/ffstatus.log
+
+#if flash log is too long push the appropriate number of lines from RAM
+if test $maxp -lt $plines 
+then
+        tail -$plen /var/etc/ffstatus.log > /etc/fabfi-scripts/ffstatus.log
+else
+	echo -e "$od$sp$nbor$sp$gw$sp$net" >> /etc/fabfi-scripts/ffstatus.log
+fi
+
+#if RAM log is too long truncate it
+if test $maxt -lt $tlines 
+then
+        tail -$tlen /var/etc/ffstatus.log > /tmp/ffstatus2.log
+        mv /tmp/ffstatus2.log /var/etc/ffstatus.log
+fi
+

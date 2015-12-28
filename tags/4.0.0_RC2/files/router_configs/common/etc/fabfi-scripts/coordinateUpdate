@@ -1,0 +1,4 @@
+#!/bin/sh 
+source /etc/config/fabfimap.cfg
+echo $nodeCoords > /www/mygooglemapscoords.txt
+

@@ -1,0 +1,21 @@
+HS_LANIF=eth0.0            # Subscriber Interface for client devices
+HS_NETMASK=255.255.255.0   # HotSpot Network Netmask
+HS_UAMPORT=3990            # HotSpot UAM Port (on subscriber network)
+HS_UAMUIPORT=4990          # HotSpot UAM "UI" Port (on subscriber network, for embedded portal)
+HS_RADIUS=radius1.coova.net
+HS_RADIUS2=radius2.coova.net
+HS_UAMALLOW=www.coova.org
+HS_UAMALIASNAME=chilli
+HS_UAMDOMAINS="fabfi.lan"
+HS_UAMSERVER=www.coova.net
+HS_UAMFORMAT=https://\$HS_UAMSERVER/hotspot
+HS_UAMHOMEPAGE=http://\$HS_UAMLISTEN:\$HS_UAMPORT/www/coova.html
+HS_MODE=hotspot
+HS_TYPE=chillispot
+HS_WWWDIR=/etc/chilli/www
+HS_WWWBIN=/etc/chilli/wwwsh
+HS_PROVIDER=Coova
+HS_PROVIDER_LINK=http://www.coova.org/
+
+
+

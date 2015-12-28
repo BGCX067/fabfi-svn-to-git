@@ -1,0 +1,16 @@
+
+config timeserver
+        option hostname time.mesh
+
+config timeserver
+        option hostname time.mit.edu
+
+config timeserver
+        option hostname ac-ntp0.net.cmu.edu
+
+config timeserver
+        option hostname time2.mesh
+
+config timeserver
+        option hostname time3.mesh
+

@@ -1,0 +1,21 @@
+config wifi-device radio0 
+        option type     mac80211 
+        option channel  11
+        option hwmode   11ng
+        option htmode   HT20
+        list ht_capab   SHORT-GI-40
+        list ht_capab   DSSS_CCK-40
+#	option 'rts' '2000'
+#	option 'frag' '2048'
+#	option 'distance' '100'
+        option disabled 0
+
+config 'wifi-iface'
+	option 'device' 'radio0'
+	option 'ssid' 'fabfi'
+	option 'network' 'wifimesh'
+	option 'mode' 'adhoc'
+	option 'hidden' '1'
+	option 'encryption' 'wep'
+	option 'key' '8bb8d3c8d3d8bb3dffd38db33f'
+	option 'bssid' '0b:fa:bf:1f:ab:f1'

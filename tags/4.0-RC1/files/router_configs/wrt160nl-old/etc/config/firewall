@@ -1,0 +1,102 @@
+
+config 'defaults'
+	option 'syn_flood' '1'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+
+config 'zone'
+	option 'name' 'lan'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'tunnel'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'wan'
+	option 'input' 'REJECT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+	option 'masq' '1'
+
+config 'forwarding'
+	option 'src' 'tunnel'
+	option 'dest' 'wan'
+	option 'mtu_fix' '1'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'wan'
+	option 'mtu_fix' '1'
+
+config 'include'
+	option 'path' '/etc/firewall.user'
+
+config 'zone'
+	option 'name' 'wifimesh'
+	option 'network' 'wifimesh'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'mesh'
+	option 'network' 'mesh'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'forwarding'
+	option 'src' 'wifimesh'
+	option 'dest' 'mesh'
+
+config 'forwarding'
+	option 'src' 'wifimesh'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'wifimesh'
+	option 'dest' 'tunnel'
+
+config 'forwarding'
+	option 'src' 'mesh'
+	option 'dest' 'wifimesh'
+
+config 'forwarding'
+	option 'src' 'mesh'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'mesh'
+	option 'dest' 'tunnel'
+
+config 'forwarding'
+	option 'src' 'tunnel'
+	option 'dest' 'mesh'
+
+config 'forwarding'
+	option 'src' 'tunnel'
+	option 'dest' 'lan'
+
+config 'forwarding'
+	option 'src' 'tunnel'
+	option 'dest' 'wifimesh'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option '_name' 'PING from net'
+	option 'src' 'wan'
+	option 'proto' 'icmp'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option '_name' 'SSH from net'
+	option 'src' 'wan'
+	option 'proto' 'tcp'
+	option 'dest_port' '22'
+

@@ -1,0 +1,10 @@
+#!/bin/sh 
+INITRC=/etc/rc.d/S04upgrade-post
+
+#fill in your custom commands here
+
+rm $INITRC
+
+sleep 1
+reboot &
+

@@ -1,0 +1,7 @@
+src/gz packages http://downloads.openwrt.org/backfire/10.03/ar71xx/packages
+dest root /
+dest ram /tmp
+dest usb /mnt/usb
+lists_dir ext /var/opkg-lists
+option overlay_root /overlay
+

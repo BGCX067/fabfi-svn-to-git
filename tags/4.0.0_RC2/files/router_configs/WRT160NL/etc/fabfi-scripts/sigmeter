@@ -1,0 +1,123 @@
+#!/bin/sh
+
+SIGTMP="/tmp/sigtemp"
+LEDIR="/sys/class/leds/" #Needs trailing /
+LED3="wrt160nl:blue:wlan"
+LED2="wrt160nl:amber:wps"
+LED1="wrt160nl:blue:wps"
+
+TRH1=45
+TRH1B=50
+
+TRH2=55
+TRH2B=60
+
+TRH3=65
+TRH3B=70
+
+TRH4=75
+TRH4B=80
+
+OLDVAL=0
+
+
+#echo begin
+
+clear1() {
+        echo 0 > ${LEDIR}${1}/brightness
+}
+
+set1() {
+        echo 1 > ${LEDIR}${1}/brightness
+}
+
+
+blink1() {
+        clear1 $1
+        set1 $1
+        echo heartbeat > ${LEDIR}${1}/trigger
+}
+
+clear_all() {
+        clear1 $LED1
+        clear1 $LED2
+        clear1 $LED3
+}
+
+
+clear_all
+while true
+        do
+if [ `iwconfig $1 | grep -c $1` -gt 0 ]
+then
+        iw dev $1 station dump | grep 'signal' | cut -d - -f 2 | cut -d d -f 1 > $SIGTMP
+#echo "----------------------"
+#echo "oldval $OLDVAL"        
+        REZ="0"
+        while read line
+                do 
+                if [ $line -gt $REZ ]
+                        then
+                        REZ=$line
+                fi
+        done < $SIGTMP
+#echo "rez $REZ"
+        if [ $REZ -ne 0 ]; then
+                if [ $REZ -ne $OLDVAL ]; then
+                        clear_all
+                        if [ $REZ -gt $TRH1 ]; then
+#echo "level1 $REZ"
+                                set1 $LED1
+                                set1 $LED3
+                        else
+                        if [ $REZ -gt $TRH1B ]; then
+#echo "level1b"
+                                blink1 $LED1
+                                set1 $LED3
+                        else
+                                if [ $REZ -gt $TRH2 ]; then
+#echo "level2"
+	                                set1 $LED1
+                                        set1 $LED2
+                                        set1 $LED3
+                                else
+                                if [ $REZ -gt $TRH2B ]; then
+#echo "level2b"
+                                        blink1 $LED1
+                                        blink1 $LED2
+                                        set1 $LED3
+                                else
+                                        if [ $REZ -gt $TRH3 ]; then
+#echo "level3"
+                                                set1 $LED2
+	                                        set1 $LED3
+                                        else
+                                        if [ $REZ -gt $TRH3B ]; then
+#echo "level3b"
+                                                blink1 $LED2
+                                                set1 $LED3
+                                        else
+                                                if [ $REZ -gt $TRH4 ]; then
+#echo "level4"
+                                                        set1 $LED3               
+                                                else
+                                                if [ $REZ -le $TRH4 ]; then
+#echo "level4b"
+                                                        blink1 $LED3                            
+                                                fi
+                                                fi
+                                        fi
+                                        fi
+                                fi
+                                fi
+                        fi
+                        fi
+                        OLDVAL=$REZ
+                fi
+        else
+                clear_all
+        fi
+fi
+sleep 2
+done
+

@@ -1,0 +1,303 @@
+
+config agent
+	option agentaddress 'UDP:161,UDP6:161'
+	option rocommunity6 'public'
+
+config com2sec 'public'
+	option secname 'ro'
+	option source 'default'
+	option community 'public'
+
+config com2sec 'private'
+	option secname 'rw'
+	option source 'localhost'
+	option community 'private'
+
+config group 'public_v1'
+	option group 'public'
+	option version 'v1'
+	option secname 'ro'
+
+config group 'public_v2c'
+	option group 'public'
+	option version 'v2c'
+	option secname 'ro'
+
+config group 'public_usm'
+	option group 'public'
+	option version 'usm'
+	option secname 'ro'
+
+config group 'private_v1'
+	option group 'private'
+	option version 'v1'
+	option secname 'rw'
+
+config group 'private_v2c'
+	option group 'private'
+	option version 'v2c'
+	option secname 'rw'
+
+config group 'private_usm'
+	option group 'private'
+	option version 'usm'
+	option secname 'rw'
+
+config view 'all'
+	option viewname 'all'
+	option type 'included'
+	option oid '.1'
+
+config access 'public_access'
+	option group 'public'
+	option context 'none'
+	option version 'any'
+	option level 'noauth'
+	option prefix 'exact'
+	option read 'all'
+	option write 'none'
+	option notify 'none'
+
+config access 'private_access'
+	option group 'private'
+	option context 'none'
+	option version 'any'
+	option level 'noauth'
+	option prefix 'exact'
+	option read 'all'
+	option write 'all'
+	option notify 'all'
+
+config system
+	option sysName 'schoolnet20'
+	option sysLocation 'schoolnet20'
+	option sysContact 'fabfi@fabfi.com'
+
+config exec
+	option name 'filedescriptors'
+	option prog '/bin/cat'
+	option args '/proc/sys/fs/file-nr'
+
+config com2sec6
+	option secname 'fabfi'
+	option source '2001::/16'
+	option community 'public'
+
+config group
+	option group 'fabfi'
+	option version 'usm'
+	option secname 'fabfi'
+
+config rwuser
+	option username 'fabfi-admin'
+	option securitylevel 'authPriv'
+	option view 'all'
+
+config rouser
+	option username 'fabfi-user'
+	option securitylevel 'authPriv'
+	option view 'all'
+
+config extend
+	option name 'longitude'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'lon'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.10'
+
+config extend
+	option name 'latitude'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'lat'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.11'
+
+config extend
+	option name 'Neighbour_IP'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_ip'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.12'
+
+config extend
+	option name 'Neighbour_HOSTNAME'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_hostname'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.13'
+
+config extend
+	option name 'Neighbour_LQ'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_lq'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.14'
+
+config extend
+	option name 'Neighbour_HYST'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_hyst'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.15'
+
+config extend
+	option name 'Neighbour_NLQ'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_nlq'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.16'
+
+config extend
+	option name 'Neighbour_COST'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_cost'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.17'
+
+config extend
+	option name 'Neighbour_Longitude'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_lon'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.18'
+
+config extend
+	option name 'Neighbour_Latitude'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'neigh_lat'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.19'
+
+config extend
+	option name 'Node_type'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'node_type'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.20'
+
+config extend
+	option name 'Node_Info'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'node_info'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.21'
+
+config extend
+	option name 'Wireless_Interfaces'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'wifi_interfaces'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.22'
+
+config extend
+	option name 'Wlan0_clients'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'wifi_clients 0'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.23'
+
+config extend
+	option name 'Wlan1_clients'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'wifi_clients 1'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.24'
+
+config extend
+	option name 'Wlan0_clients'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'wifi_clients 2'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.25'
+
+config extend
+	option name 'Wlan3_clients'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'wifi_clients 3'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.26'
+
+config extend
+	option name 'Wlan0_signal'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'avg_signal 0'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.27'
+
+config extend
+	option name 'Wlan1_signal'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'avg_signal 1'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.28'
+
+config extend
+	option name 'Wlan2_signal'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'avg_signal 2'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.29'
+
+config extend
+	option name 'Wlan3_signal'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'avg_signal 3'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.30'
+
+config extend
+	option name 'Wlan0_txbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'tx_bitrate 0'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.31'
+
+config extend
+	option name 'Wlan1_txbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'tx_bitrate 1'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.32'
+
+config extend
+	option name 'Wlan2_txbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'tx_bitrate 2'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.33'
+
+config extend
+	option name 'Wlan3_txbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'tx_bitrate 3'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.34'
+
+config extend
+	option name 'Wlan0_rxbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'rx_bitrate 0'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.35'
+
+config extend
+	option name 'Wlan1_rxbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'rx_bitrate 1'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.36'
+
+config extend
+	option name 'Wlan2_rxbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'rx_bitrate 2'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.37'
+
+config extend
+	option name 'Wlan3_rxbitrate'
+	option prog '/bin/ash'
+	option script '/etc/fabfi/scripts/meshmib.sh'
+	option args 'rx_bitrate 3'
+	option miboid '.1.3.6.1.4.1.8072.1.3.2.38'
+

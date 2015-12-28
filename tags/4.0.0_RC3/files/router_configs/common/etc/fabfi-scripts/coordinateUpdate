@@ -1,0 +1,11 @@
+#!/bin/sh 
+MAPCFG=/var/run/fabfimap.cfg
+ns_index=`uci show olsrd | grep -e 'olsrd\.@LoadPlugin\[.*\]\.library=olsrd_nameservice\.so' | awk 'FS="[";{print $2}' | awk 'FS="]";{print $1};' | tail -1`
+mynote=`uci get olsrd.@LoadPlugin[${ns_index}].name`
+mylat=`uci get olsrd.@LoadPlugin[${ns_index}].lat`
+mylon=`uci get olsrd.@LoadPlugin[${ns_index}].lon`
+echo "nodeCoords=\"${mylat}, ${mylon}\"" > $MAPCFG
+echo "note=\"${mynote}\"" >> $MAPCFG
+source /var/run/fabfimap.cfg
+echo $nodeCoords > /var/run/mygooglemapscoords.txt
+

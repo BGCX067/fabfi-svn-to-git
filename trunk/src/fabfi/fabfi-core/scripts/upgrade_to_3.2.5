@@ -1,0 +1,14 @@
+#!/bin/ash
+
+# deprecate niit and install siit
+uci delete network.niit4to6
+uci delete network.niit6to4
+uci set network.siit0=interface
+uci set network.siit0.proto=none
+uci set network.siit0.ifname=siit0
+ln -s  /etc/fabfi/scripts/siit-init /etc/init.d/siit
+ln -s /etc/fabfi/scripts/siit-hotplug /etc/hotplug.d/iface/30-siit
+/etc/init.d/siit enable
+
+
+

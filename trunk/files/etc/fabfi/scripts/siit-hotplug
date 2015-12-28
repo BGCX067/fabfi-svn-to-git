@@ -1,0 +1,13 @@
+#!/bin/sh
+#This script keeps the routing tables intact, in order for siit to function as required.
+
+[ "$DEVICE" == "lo" ] && exit 0
+
+case "$ACTION" in
+	ifup)
+		/etc/init.d/siit start	
+	;;
+	ifdown)
+		/etc/init.d/siit start
+	;;
+esac

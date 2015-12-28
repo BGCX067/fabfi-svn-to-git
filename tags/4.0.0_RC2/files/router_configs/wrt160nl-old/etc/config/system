@@ -1,0 +1,6 @@
+config system
+	option hostname fabfi253	
+	option timezone	UTC
+
+config rdate
+	option interface	wan

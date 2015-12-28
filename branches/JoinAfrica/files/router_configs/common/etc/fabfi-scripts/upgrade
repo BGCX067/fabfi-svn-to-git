@@ -1,0 +1,38 @@
+#!/bin/sh 
+SWURL=http://fabfi.googlecode.com/files/
+LOCAL=/tmp/
+PASS=/etc/passwd
+CFG=/etc/config
+GRP=/etc/group 
+CUST=/etc/init.d/custom-user-startup
+DRP=/etc/dropbear
+FW=/etc/firewall.user 
+RCL=/etc/rc.local
+
+model=`uci get system.@platform[0].profile`
+echo "model is $model"
+
+cd $LOCAL
+if `wget "${SWURL}fabfi-${model}-sysupgrade.bin"`
+    then
+#stop services so we don't get weird race conditions
+/etc/init.d/cron stop
+/etc/init.d/nrpe stop
+/etc/init.d/nagios stop
+killall squid
+sleep 10
+
+#add a line to rc.local for upgrade-post
+sed "/exit 0/d" $RCL > /tmp/RCL
+mv -f /tmp/RCL $RCL
+echo "sh /etc/fabfi-scripts/upgrade-post" >> $RCL
+echo "exit 0" >> $RCL
+sleep 5
+	tar -czf ${LOCAL}ffconfig.tar.gz $PASS $CFG $GRP $DRP $FW $RCL
+
+	#flash and reboot
+	sysupgrade -n -v -f ffconfig.tar.gz fabfi-${model}-sysupgrade.bin
+
+fi
+
+

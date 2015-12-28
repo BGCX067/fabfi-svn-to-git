@@ -1,0 +1,21 @@
+
+config 'wifi-device' 'radio0'
+	option 'type' 'mac80211'
+	option 'disabled' '1'
+	option 'txantenna' '0'
+	option 'rxantenna' '0'
+	option 'rts' '2000'
+	option 'frag' '2048'
+	option 'distance' '100'
+	option 'channel' '11'
+
+config 'wifi-iface'
+	option 'device' 'radio0'
+	option 'ssid' 'fabfi'
+	option 'network' 'wifimesh'
+	option 'mode' 'adhoc'
+	option 'hidden' '1'
+	option 'encryption' 'wep'
+	option 'key' '8bb8d3c8d3d8bb3dffd38db33f'
+	option 'bssid' '11:fa:bf:1f:ab:f1'
+

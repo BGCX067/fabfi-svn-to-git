@@ -1,0 +1,46 @@
+config 'dnsmasq'
+	option 'domainneeded' '1'
+	option 'boguspriv' '1'
+	option 'rebind_protection' '0'
+	option 'filterwin2k' '0'
+	option 'localise_queries' '1'
+	option 'local' '/lan/'
+	option 'domain' 'lan'
+	option 'expandhosts' '1'
+	option 'nonegcache' '1'
+	option 'authoritative' '1'
+	option 'readethers' '1'
+	option 'leasefile' '/tmp/dhcp.leases'
+	option 'resolvfile' '/tmp/resolv.conf.auto'
+
+config 'dhcp' 'alan'
+	option 'interface' 'alan'
+	option 'start' '25'
+	option 'limit' '225'
+	option 'leasetime' '12h'
+
+#config 'dhcp' 'lan'
+#	option 'interface' 'lan'
+#	option 'ignore' '1'
+
+config 'dhcp' 'wan'
+	option 'interface' 'wan'
+	option 'ignore' '1'
+
+#config 'dhcp' 'adhocmesh'
+#	option 'interface' 'adhocmesh'
+#	option 'ignore' '1'
+
+config 'dhcp' 'mesh'
+	option 'interface' 'mesh'
+	option 'ignore' '1'
+
+config 'dhcp' 'wifimesh'
+	option 'interface' 'wifimesh'
+	option 'ignore' '1'
+
+config 'domain'
+	option 'name' 'fabfi.lan'
+	option 'ip' '10.108.1.1'
+
+

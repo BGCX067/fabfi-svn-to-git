@@ -1,0 +1,83 @@
+#!/bin/bash
+#This script should ideally be placed in the same directory with your CA.pem, xpextensions and CA.key files
+#By default, the files in ../portalgun/certificates/ are used
+
+
+DIR=../../certs/
+
+echo "Using files in $DIR"
+
+echo "Enter client shortname, e.g tom "
+read client_name
+
+echo "Enter client email address- This will be used as the client ID e.g tom@fabfi.net "
+read client_email
+
+echo "Enter Client key password - This will be the password to your private key"
+read client_password
+
+if [ -f $DIR/${client_name}.crt ]; then
+
+	echo "Erasing old config"
+	rm -f $DIR/${client_name}.key
+	rm -f $DIR/${client_name}.csr
+	rm -f ${client_name}.cnf
+
+fi
+
+if [ ! -f $DIR/index.txt ]; then
+	touch $DIR/index.txt
+fi
+
+if [ ! -f $DIR/serial ]; then
+        echo 01 > $DIR/serial
+fi
+
+printf "[ ca ]\ndefault_ca		= CA_default\n\n[ CA_default ]\ndir			= $DIR/\ncerts			= \$dir\ncrl_dir			= \$dir/crl\ndatabase		= \$dir/index.txt\nnew_certs_dir		= \$dir\ncertificate		= \$dir/server.pem\nserial			= \$dir/serial\ncrl			= \$dir/crl.pem\nprivate_key		= \$dir/server.key\nRANDFILE		= \$dir/.rand\nname_opt		= ca_default\ncert_opt		= ca_default\ndefault_days		= 365\ndefault_crl_days	= 30\ndefault_md		= md5\npreserve		= no\npolicy			= policy_match\n\n[ policy_match ]\ncountryName		= match\nstateOrProvinceName	= match\norganizationName	= match\norganizationalUnitName	= optional\ncommonName		= supplied\nemailAddress		= optional\n\n[ policy_anything ]\ncountryName		= optional\nstateOrProvinceName	= optional\nlocalityName		= optional\norganizationName	= optional\norganizationalUnitName	= optional\ncommonName		= supplied\nemailAddress		= optional\n\n[ req ]\nprompt			= no\ndistinguished_name	= ${client_name}\ndefault_bits		= 2048\ninput_password		= ${client_password}\noutput_password		= ${client_password}\n\n[${client_name}]\ncountryName		= US\nstateOrProvinceName	= Massachusetts\nlocalityName		= Cambridge\norganizationName	= FabFi\nemailAddress		= ${client_email}\ncommonName		= ${client_email}" >> ${client_name}.cnf
+
+echo "Generating .csr and .key files"
+
+openssl req -new  -out $DIR/${client_name}.csr -keyout $DIR/${client_name}.key -config ./${client_name}.cnf
+
+
+echo "Generating .crt - Certificate file "
+
+if [ ! -f $DIR/${client_name}.crt ]; then
+
+	echo "What is your CA key password?"
+	read ca_password
+
+	openssl ca -batch -keyfile $DIR/ca.key -cert $DIR/ca.pem -in $DIR/${client_name}.csr  -key ${ca_password} -out $DIR/${client_name}.crt -extensions xpclient_ext -extfile $DIR/xpextensions -config ./${client_name}.cnf
+
+	if [ -f $DIR/${client_name}.crt ]; then
+
+		echo "Generating P12"
+
+		openssl pkcs12 -export -in $DIR/${client_name}.crt -inkey $DIR/${client_name}.key -out $DIR/${client_name}.p12  -passin pass:${client_password} -passout pass:${client_password}
+
+		echo "Generating PEM"
+		openssl pkcs12 -in $DIR/${client_name}.p12 -out $DIR/${client_name}.pem -passin pass:${client_password} -passout pass:${client_password}
+
+		printf "\nVerifying created certificate\n\n"
+
+		check=$(openssl verify -CAfile $DIR/ca.pem $DIR/${client_name}.pem |  grep OK | awk -F ": " '{print $2}')
+
+		if [ ${check} == "OK" ]; then
+
+			rm ${client_name}.cnf
+			echo "Certificate ok"
+			mkdir $DIR/dir_${client_name}
+			mv $DIR/${client_name}* $DIR/dir_${client_name}/
+			echo "Certificates stored in $DIR/dir_${client_name} directory"
+
+		else
+
+			echo "Invalid certificate"
+			rm $DIR/${client_name}*
+		fi
+	else
+		echo "Something went wrong, ( you probably entered a wrong CA password )"
+	fi
+else
+	echo "Doing nothing - you already have a certificate"
+fi

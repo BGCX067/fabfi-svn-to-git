@@ -1,0 +1,4 @@
+#!/bin/sh 
+sleep 100
+sh /etc/fabfi-scripts/set-time
+

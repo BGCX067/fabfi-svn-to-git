@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<!--
+      A purely HTML based captive portal using the JSON interface of CoovaChilli
+-->
+
+<title>JoinAfrica Hotspot</title>
+<style><!--
+body,td,a,p,h{
+  font-family:arial,sans-serif;
+}
+body {
+  text-align: center;
+  padding-top: 0px;
+  margin: auto;
+}
+#MyChilli {
+  margin: auto;
+  position:relative;
+  top:0px;
+  left:0px;
+  width: 670px;
+  height:500px;
+  text-align: left;
+  padding: 0px 0 0px 0;
+  z-index:5000;
+}
+#locationName {
+  position:relative;
+  height: 30px;
+  width:300px;
+  font-size: 80%;
+  font-weight: regular;
+  font-style:italic;
+  top:18px;
+  left:235px;
+  z-index:3000;
+}
+#chilliPage {
+  position:relative;
+  padding: 5px 5px 5px 5px;
+  left:25px;
+  top:190px;
+  width:200px;
+  margin-top:0px;
+  z-index:4000;
+}
+#startTimeRow {
+  display: none;
+}
+#sessionIDRow {
+  display: none;
+}
+#signUpRow {
+  display: none;
+}
+-->
+</style>
+<!---<script>
+// Courtesy of SimplytheBest.net - http://simplythebest.net/scripts/
+var browser_type=navigator.appName
+var browser_version=parseInt(navigator.appVersion)
+if (browser_type=="Microsoft Internet Explorer"&&browser_version<9)
+document.getElementById('remotesplash').style.display='none';
+else
+window.location="http://simplythebest.net/scripts/"
+</script>-->
+</head>
+<body>
+		<div id="MyChilli">
+			<div id="noLocation" style="display:none;">
+			<p style="padding-top: 100px;"><strong>You are not at a hotspot.</strong> If you want to see a a sample login page using the <a 	href="http://www.coova.org/CoovaChilli/JSON">JSON interface</a> of <a href="http://www.coova.org/CoovaChilli">CoovaChilli</a>, then 				<a href="javascript: window.location = 'view-source:' + window.location.href;">view the source</a> of this page.</p>
+			</div>
+
+			<script id='chillijs' src='/uam/chilli.js'></script>
+<iframe id=remotesplash src ="http://master.mesh/splash.html" width="670" height="500" 
+ frameborder="0" scrolling="no"  style="position:absolute; top:0px;left:0px;margin:auto;z-index:1000;">
+  <p>Your browser does not support iframes.</p>
+</iframe>
+		</div>
+
+</body>
+</html>
+

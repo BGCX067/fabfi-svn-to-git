@@ -1,0 +1,6 @@
+config timeserver
+        option hostname time.mesh
+        option hostname time2.mesh
+        option hostname time3.mesh
+        option hostname time.mit.edu
+

@@ -1,0 +1,2 @@
+*/2 * * * * sh /etc/fabfi-scripts/check-uplink; sleep 30; sh /etc/fabfi-scripts/logstatus
+

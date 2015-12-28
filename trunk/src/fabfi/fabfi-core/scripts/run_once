@@ -1,0 +1,42 @@
+#!/bin/sh /etc/rc.common
+
+START=32
+
+start() {
+
+	updateserver="http://fabfi.googlecode.com/files/"
+	openwrt=$(cat /usr/share/fabfi/openwrt_info  | grep Revision | cut -d ":" -f 2 | cut -c2-)
+	fabfi=$(cat /usr/share/fabfi/fabfi_info  | grep Revision | cut -d ":" -f 2 | cut -c2-)
+	platform=$(cat /proc/cpuinfo | grep machine | cut -d ":" -f 2 | cut -c2- | tr -d "\n")
+
+	cp /usr/share/fabfi/logo2 /etc/banner 	
+	
+	printf " ${platform} \n Fabfi r${fabfi} - OpenWrt r${openwrt} \n $(cat /proc/version  | cut -d "(" -f 1)" >> /etc/banner
+	printf "\n - - - - - - - - - - - - - - - - - -\n" >> /etc/banner
+	
+	platform=$( echo $platform | tr -d " " )
+	
+	#If "just upgraded", run the post-upgrade script first
+
+	if [ "$( uci get fabfi.@upgrade[0].status )" == "1" ]; then
+
+		/bin/ash /usr/bin/fabfi/post-upgrade
+
+	#Else , for "just flashed images"
+	else
+	 
+		uci -q set fabfi.@node[0].platform=${platform}
+		uci -q set fabfi.@servers[0].updateserver=$updateserver
+		uci -q set network.lan.ipaddr=192.168.100.1
+		uci -q set network.lan.netmask=255.255.0.0
+
+	fi
+
+	uci commit
+	/etc/init.d/network restart
+	uci commit
+
+	rm -rf /etc/init.d/run_once
+	rm -rf /etc/rc.d/S32run_once
+}
+

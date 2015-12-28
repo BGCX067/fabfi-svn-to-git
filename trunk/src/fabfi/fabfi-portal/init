@@ -1,0 +1,65 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+clientLanInterface=$( /sbin/uci get fabfi.@portal[0].clientLanInterface )
+meshInterfaces=$( /sbin/uci -P /var/state get firewall.core.mesh_networks )
+clientIfname=$( /sbin/uci -P/var/state get network.$clientLanInterface.ifname  )
+
+if [ ! -h /setup ]; then
+    clientIfaceIp6addr=$( /sbin/uci -P /var/state get network.$clientLanInterface.ip6addr )
+    clientIfaceIp4addr=$( /sbin/uci -P /var/state get network.$clientLanInterface.ipaddr )
+fi
+
+portalChain="YOU_SHALL_NOT_PASS"
+
+start() {
+
+
+	ip -6 rule add fwmark 0xfab lookup 0xf1  # portalgun_splash
+	ip -6 -f inet6 route add local ::0/0 dev $clientIfname table 0xf1
+
+	ip rule add fwmark 0xfab lookup 0xf1  # portalgun_splash
+	ip route add local 0.0.0.0/0 dev $clientIfname table 0xf1
+
+	ip6tables -t mangle -I PREROUTING -i $clientIfname -p tcp --dport 80 -j TPROXY --tproxy-mark 0xfab/0xFFFFFFFF --on-ip $clientIfaceIp6addr --on-port 3130
+
+	iptables -t mangle -I PREROUTING -i $clientIfname -p tcp --dport 80 -j TPROXY --tproxy-mark 0xfab/0xFFFFFFFF --on-ip $clientIfaceIp4addr --on-port 3130
+
+	ip6tables -N $portalChain
+	iptables -N $portalChain
+
+	meshInterfaces="${meshInterfaces} niit4to6 niit6to4 "
+
+	for i in ${meshInterfaces}                                                    
+	do                       
+		ifname=$( uci -P/var/state get network.$i.ifname  )
+
+		ip6tables -I FORWARD -i $clientIfname -o $ifname -j REJECT
+		ip6tables -I FORWARD -o $ifname -p icmpv6 -j ACCEPT -m comment --comment "public icmpv6"
+		ip6tables -I FORWARD -o $ifname -p udp --dport 53 -j ACCEPT -m comment --comment "public dns"
+						    
+		iptables -I FORWARD -i $clientIfname -o $ifname -j REJECT
+		iptables -I FORWARD -o $ifname -p icmp -j ACCEPT -m comment --comment "public icmp"
+		iptables -I FORWARD -o $ifname -p udp --dport 53 -j ACCEPT -m comment --comment "public dns"
+
+		ip6tables -I FORWARD -o $ifname -j $portalChain
+		iptables -I FORWARD -o $ifname -j $portalChain
+	done 
+
+}
+
+stop() {
+	ip -6 rule del fwmark 0xfab lookup 0xf1  # portalgun_splash
+	ip -6 -f inet6 route del local ::0/0 dev $clientIfname table 0xf1
+
+	ip rule del fwmark 0xfab lookup 0xf1  # portalgun_splash
+	ip route del local 0.0.0.0/0 dev $clientIfname table 0xf1
+
+	iptables -X $portalChain
+	ip6tables -X $portalChain
+	ip6tables -t mangle -D PREROUTING -i $clientIfname -p tcp --dport 80 -j TPROXY --tproxy-mark 0xfab/0xFFFFFFFF --on-ip $clientIfaceIp6addr --on-port 3130
+
+	iptables -t mangle -D PREROUTING -i $clientIfname -p tcp --dport 80 -j TPROXY --tproxy-mark 0xfab/0xFFFFFFFF --on-ip $clientIfaceIp4addr --on-port 3130
+	
+}

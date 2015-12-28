@@ -1,0 +1,9 @@
+#!/bin/sh
+cp /etc/fabfi-scripts/ffstatus.log /var/etc/ffstatus.log
+sh /etc/fabfi-scripts/coordinateUpdate
+sh /etc/fabfi-scripts/sigmeter wlan0 &
+ip rule add iif lo table fabfi
+sh /etc/fabfi-scripts/check-uplink &
+#echo "10" > /proc/sys/net/ipv4/route/gc_timeout
+
+

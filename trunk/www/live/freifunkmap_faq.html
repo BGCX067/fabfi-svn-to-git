@@ -1,0 +1,71 @@
+<html>
+   <head>
+      <title>FreifunkMap</title>
+   </head>
+   <body>
+      <span style="font-size:small">
+         <span style="font-weight:bold">Map FAQ:</span><br>
+         <span style="font-weight:bold">Wie kann ich meinen Knoten in die Karte eintragen?</span><br>
+         Unter <a href="http://layereight.de/software.php">http://layereight.de/software.php</a> findest Du 
+         ein Map Tool welches Du auf dem FreifunkFirmware Router installieren kannst. Danach einfach konfigurieren 
+         und nach kurzer Zeit sollte Dein Knoten ebenfalls in der Karte erscheinen. Auf dem Router l&auml;sst es sich 
+         ganz einfach &uuml;ber das WebFrontEnd installieren oder via ssh auf dem Router 
+				<pre>ipkg install http://layereight.de/download/ipkg/freifunk-map-de_0.3.3_mipsel.ipk</pre>
+				Router mit vielen Nachbarn empfehle ich den UpdateIntervall gr&ouml;sser als 1 min zu w&auml;hlen.<br><br />
+         <span style="font-weight:bold">Wie bekomme ich meine genauen Koordinaten?</span><br>
+         Ein einfacher Klick in die Karte zeigt die Koordinaten f&uuml;r die geklickte Position. Diese einfach so wie sie sind &uuml;bernehmen und
+         damit das freifunkMap Plugin konfigurieren.<br /><br />
+         <span style="font-weight:bold">Mein Ascii Art wird nicht richtig dargestellt.</span><br/>
+				F&uuml;r die richtige Darstellung von Ascii Art in HTML Browsern sollte diese vom &lt;pre&gt; Tag gekapselt werden. &lt;pre&gt;Ascii Art&lt;/pre&gt;
+            <br />Beispielscreenshots f&uuml; Infofelder:<br />
+            <a href="http://map.berlin.freifunk.net/map_example_asciiart.png">ascii art</a><br />
+            <a href="http://map.berlin.freifunk.net/map_example_imagetag.png">img tag</a><br /><br />
+         <span style="font-weight:bold">Ich sehe keine Verbindungslinien von meinem Knoten, obwohl ich viele Nachbarn habe?</span><br />
+         Es werden nur Verbindungen angezeigt, wenn die Nachbarn ebenfalls das Map Plugin installiert haben.<br /><br />
+         <span style="font-weight:bold">Wie lange muss ich warten, bis meine Daten dargestellt werden?</span><br />
+         Mindest die Zeitspanne eines Updateintervalls. Manchmal dauert es auch etwas l&auml;nger bis der CronJob nach dem Neustart des Routers aktiviert wird. Ganz eilige k&ouml;nnen sich via ssh auf dem Router einloggen und <pre>/etc/init.d/S70freifunkmap update</pre> ausf&uuml;hren. Dies kann bei vielen Nachbarn einen Augenblick dauern, aber sobald das abgeschlossen ist sollte der Router mit einem Punk in der Karte sein.<br /><br />
+         <span style="font-weight:bold">Wie kann ich meinen Knoten wieder aus der Karte l&ouml;schen?</span><br>
+         Das FreifunkMap Plugin vom Router deinstallieren. Wenn l&auml;ngere Zeit kein Update deines Knotens erfolgte ( 2 x UpdateIntervall) wird er aus der Karte gel&ouml;scht. <br /><br />
+         <span style="font-weight:bold">Ich habe keinen FreifunkRouter, betreibe aber einen FreifunkKnoten mit einem richtigen PC, wie komme ich in die Karte?</span><br>
+         F&uuml;r LinuxServer gibt es unter <a href="http://layereight.de/software.php">http://layereight.de/software.php</a> ebenfalls ein Script mit dem sich ein entprechender Cronjob einrichten l&auml;sst.<br><br />
+         <span style="font-weight:bold">Wie kann ich die Entfernung messen?</span><br>
+         Aktiviere das Kontrolkh&auml;kchen f&uuml;r "Messe Entfernungen". Der erste Klick in die Karte markiert die 
+         Startposition, der zweite Klick die Endpostion und zeigt dir die Entfernung an.<br><br />
+         <span style="font-weight:bold">Wie funktioniert die Suche?</span><br />
+         Es wird nur nach den Eintr&auml;gen die als Notiz mit &uuml;bergeben werden gesucht.<br /><br />
+         <span style="font-weight:bold">Gibt es noch dieses sch&ouml;ne GoogleEarth kml File von Sven-Ola?</span><br>
+         Ja, du findest es unter folgendem Link: <a href="http://layereight.de/freifunkmap.php?getgoogleearthkmlfile">http://layereight.de/freifunkmap.php?getgoogleearthkmlfile</a><br /><br />
+				<span style="font-weight:bold">Kann ich die Karte auf meiner lokalen Community Seite einbinden?</span><br>
+				Ja, dazu gibt es die Requestparameter sp (Startposition Latitude,Longitude), z (Zoomlevel 0-19), type (Maptype hybrid | satelite 
+				Standard ist als normale Karte) und conn (true | false ist Standard und kann in dem Fall dann auch entfallen). Am Besten als iframe,
+				f&uuml;r Berlin Friedrichshain k&ouml;nnte es dann in etwa wie folgt aussehen.
+				<pre>&lt;iframe src="http://layereight.de/freifunkmap.php?sp=52.5106,13.4637&z=15&type=hybrid" width="100%" height="640"/&gt;</pre>
+
+				<br /><br />
+         <span style="font-weight:bold">Ich traue Google nicht, kann programmieren und m&ouml;chte gerne die Daten mit einer anderen KartenAPI verwenden. Wie komme ich an die Daten?</span><br>
+         Die Daten liegen in verschiedenen Formaten vor. Als GoogleEarth kml File 
+         <a href="http://layereight.de/freifunkmap.php?getgoogleearthkmlfile">http://layereight.de/freifunkmap.php?getgoogleearthkmlfile</a>
+         , im freifunkMap XML Format 
+         <pre>
+&lt;ffmap version="1.0"&gt;
+   &lt;node coords="52.508512831441706, 13.448579907417297" tooltip="104.129.108.1 march108"&gt;
+      &lt;description&gt;104.129.108.1 march108&lt;/description&gt;
+      &lt;antenna type="Rundstrahler" gain="" angp="" ango="" vpos="13" hdir="" vdir="" pole=""/&gt;
+      &lt;neighbor coords="52.508725057126895, 13.449389934539795" lq=" 0.08"/&gt;
+   &lt;/node&gt;
+&lt;/ffmap&gt;
+         </pre> welches &uuml;ber folgende Parameter vom Server abgefragt werden kann
+         <pre>
+http://layereight.de/freifunkmap.php?
+   getArea=northEastLat,northEastLng,southWestLat,southWestLng
+   details=antenna,description
+         </pre>ein Beispiel k&ouml;nnte etwa wie folgt aussehen<br />
+         <a href="http://layereight.de/freifunkmap.php?getArea=52.55,13.53,52.49,13.29&details=description,antenna">http://layereight.de/freifunkmap.php?getArea=52.55,13.53,52.49,13.29&details=description,antenna</a><br />
+         und als Rohdaten in einem TAB separierten Format (Timestamp des Eintrags | Updateintervall in Sek. | Node Koordinaten | Nachbarn, mit Koordinaten und LQ Wert | Notizfeld) 
+         <a href="http://layereight.de/freifunkmap.php?dumpdatabase">http://layereight.de/freifunkmap.php?dumpdatabase</a>.<br />
+         Wenn die Karte oder die Kartendaten irgendwoanders verwendet werden w&uuml;rde ich mich &uuml;ber eine kleine Info via E-Mail an gerald@layereight.de freuen.<br /><br />
+         <span style="font-weight:bold">Ich habe noch mehr Fragen, an wen kann ich mich wenden?</span><br>
+         Einfach per E-Mail an gerald@layereight.de
+       </span>    
+   </body>
+</html>
